@@ -1,0 +1,17 @@
+version: "3.8"
+
+# Github Actions用
+services:
+  app:
+    user: "root"
+    volumes:
+      - "../.netrc:/root/.netrc:ro"
+
+  cli:
+    user: "root"
+
+  database:
+    user: "root"
+
+  elasticsearch:
+    user: "root"

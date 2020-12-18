@@ -1,0 +1,33 @@
+# モック作成
+
+## 01. モック生成
+
+- 下記コマンドにより, interface 定義から自動で生成させる
+
+```bash
+make mock
+```
+
+### 対象を指定して実行
+
+- `target` に指定したディレクトリ配下すべてが対象となる.
+
+```
+make mock target=internal/usecase
+```
+
+## 02. 外部パッケージのモックを作成する（例）
+
+```bash
+cd deployments
+
+# Go標準パッケージの "net/http" の "RoundTripper" をモックする
+docker-compose run --rm --no-deps app mockery \
+    -case=underscore \
+    -dir=/usr/local/go/src/net/http \
+    -name=RoundTripper \
+    -output=net/http/client/mocks \
+    -outpkg=mocks
+```
+
+[←Back](../README.md)

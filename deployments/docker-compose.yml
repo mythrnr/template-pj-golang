@@ -1,0 +1,102 @@
+version: "3.8"
+
+services:
+  app: &app
+    build:
+      context: "../build/golang"
+      args:
+        HTTP_PROXY: "${HTTP_PROXY}"
+        HTTPS_PROXY: "${HTTPS_PROXY}"
+      target: "base"
+    image: "mythrnr/template-pj-golang:app-development"
+    command: 'realize start --name="app"'
+    depends_on:
+      - "elasticsearch"
+    env_file: "../build/golang/local.env"
+    environment:
+      HTTP_PROXY: "${HTTP_PROXY}"
+      HTTPS_PROXY: "${HTTPS_PROXY}"
+      GO111MODULE: "on"
+      GOPROXY: "direct"
+      GOSUMDB: "off"
+    expose:
+      - 8080
+    logging: &logging
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      - "default"
+    restart: "no"
+    ulimits: &ulimits
+      nofile:
+        soft: 65535
+        hard: 65535
+    user: "golang"
+    volumes:
+      - "../.netrc:/home/golang/.netrc:ro"
+      - "../:/go/src/github.com/mythrnr/template-pj-golang/:cached"
+      - "../configs/realize.yml:/go/src/github.com/mythrnr/template-pj-golang/.realize.yaml:ro"
+      - "template_pj_golang_go_pkg:/go/pkg:rw"
+    working_dir: "/go/src/github.com/mythrnr/template-pj-golang"
+
+  cli: *app
+
+  database:
+    image: "mysql:5.7"
+    env_file: "../build/mysql/local.env"
+    expose:
+      - 3306
+    logging: *logging
+    networks:
+      - "default"
+    restart: "no"
+    user: "mysql"
+    volumes:
+      - "../build/mysql/conf.d/:/etc/mysql/conf.d/:ro"
+      - "../build/mysql/docker-entrypoint-initdb.d/entry.sh:/docker-entrypoint-initdb.d/entry.sh:ro"
+      - "../build/mysql/docker-entrypoint-initdb.d/files:/tmp/files:ro"
+      - "template_pj_golang_mysql:/var/lib/mysql/"
+
+  elasticsearch:
+    build:
+      context: "../build/elasticsearch"
+      args:
+        HTTP_PROXY_HOST: "${HTTP_PROXY_HOST}"
+        HTTP_PROXY_PORT: "${HTTP_PROXY_PORT}"
+        HTTPS_PROXY_HOST: "${HTTPS_PROXY_HOST}"
+        HTTPS_PROXY_PORT: "${HTTPS_PROXY_PORT}"
+    image: "mythrnr/template-pj-golang:elasticsearch-development"
+    expose:
+      - 9200
+      - 9300
+    logging: *logging
+    networks:
+      - "default"
+    restart: "no"
+    user: "elasticsearch"
+    volumes:
+      - "template_pj_golang_elasticsearch:/usr/share/elasticsearch/data"
+
+  web:
+    build:
+      context: "../build/nginx"
+      dockerfile: "local.Dockerfile"
+      args:
+        COMMON_NAME: "localhost"
+    image: "mythrnr/template-pj-golang:web-development"
+    depends_on:
+      - "app"
+    logging: *logging
+    networks:
+      - "default"
+    restart: "no"
+    ulimits: *ulimits
+    volumes:
+      - "../build/nginx/conf.d.local/:/etc/nginx/conf.d/:ro"
+
+volumes:
+  template_pj_golang_go_pkg:
+  template_pj_golang_mysql:
+  template_pj_golang_elasticsearch:

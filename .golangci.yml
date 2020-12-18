@@ -1,0 +1,76 @@
+# see: https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
+run:
+  timeout: "1m"
+  skip-dirs:
+    - "build"
+    - "docs"
+    - "scripts"
+  tests: false
+
+linters-settings:
+  dupl:
+    threshold: 100
+  gocognit:
+    min-complexity: 20
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  gocyclo:
+    min-complexity: 10
+  lll:
+    line-length: 80
+    tab-width: 4
+  maligned:
+    suggest-new: true
+  nakedret:
+    max-func-lines: 100
+  nestif:
+    min-complexity: 4
+linters:
+  enable:
+    - "bodyclose"
+    - "deadcode"
+    - "depguard"
+    - "dogsled"
+    - "dupl"
+    - "errcheck"
+    - "gocognit"
+    - "goconst"
+    - "gocritic"
+    - "gocyclo"
+    - "godot"
+    - "gofmt"
+    - "goimports"
+    - "golint"
+    - "gomnd"
+    - "goprintffuncname"
+    - "gosimple"
+    - "govet"
+    - "interfacer"
+    - "maligned"
+    - "megacheck"
+    - "misspell"
+    - "nakedret"
+    - "rowserrcheck"
+    - "scopelint"
+    - "staticcheck"
+    - "structcheck"
+    - "stylecheck"
+    - "typecheck"
+    - "unconvert"
+    - "unused"
+    - "varcheck"
+    - "whitespace"
+    - "wsl"
+  disable:
+    - "funlen"
+    - "gochecknoglobals"
+    - "gochecknoinits"
+    - "godox"
+    - "gosec"
+    - "lll"
+    - "testpackage"
+    - "unparam"
+    # not work well
+    - "ineffassign"
+  fast: false

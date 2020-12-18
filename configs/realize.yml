@@ -1,0 +1,29 @@
+settings:
+  legacy:
+    force: false
+    interval: "500ms"
+
+schema:
+  - name: "app"
+    path: "."
+    commands:
+      install:
+        status: true
+        method: "go build -trimpath -o .tmp/http/server cmd/http/main.go"
+      run:
+        status: true
+        method: ".tmp/http/server"
+    watcher:
+      extensions:
+        - "go"
+      paths:
+        - "/"
+      ignored_paths:
+        - ".git"
+        - ".github"
+        - ".vscode"
+        - "bin"
+        - "build"
+        - "deployments"
+        - "docs"
+        - "scripts"

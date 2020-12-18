@@ -1,0 +1,166 @@
+name: "Build Container and Create Release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  SLACK_COLOR_FAILED: "#a92d2e"
+  SLACK_COLOR: "#32bd77"
+  SLACK_ICON: "https://github.com/github.png"
+  SLACK_USERNAME: "GitHub Actions"
+
+jobs:
+  release:
+    name: "Build Container and Create Release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: "Get app version"
+        run: |
+          echo "APP_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+      - if: "contains(github.ref, '-dev')"
+        name: "Set Release env variables for Testing"
+        run: |
+          echo "RELEASE_BRANCH=develop" >> $GITHUB_ENV
+          echo "RELEASE_ENV=testing" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_TESTING }}" >> $GITHUB_ENV
+
+      - if: "!contains(github.ref, '-dev')"
+        name: "Set Release env variables for Production"
+        run: |
+          echo "RELEASE_BRANCH=master" >> $GITHUB_ENV
+          echo "RELEASE_ENV=production" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_PRODUCTION }}" >> $GITHUB_ENV
+
+      - name: "Cache Docker volume dir"
+        uses: "actions/cache@v2"
+        # use this to check for `cache-hit`
+        # `steps.docker-volumes.outputs.cache-hit != 'true'`
+        id: "docker-volumes"
+        with:
+          path: "/var/lib/docker/volumes"
+          key: "${{ runner.os }}-mythrnr-template-pj-golang-${{ hashFiles(format('{0}{1}', github.workspace, '/go.sum')) }}"
+          restore-keys: "${{ runner.os }}-mythrnr-template-pj-golang-"
+
+      - name: "Login Dockerhub"
+        uses: "docker/login-action@v1"
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: "Build Container"
+        env:
+          APP_VERSION: ${{ env.APP_VERSION }}
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+        run: "make build"
+
+      - name: "Push Container"
+        env:
+          APP_VERSION: ${{ env.APP_VERSION }}
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+        run: "make push"
+
+      - name: "Create release"
+        id: "create-release"
+        uses: "actions/create-release@v1.1.0"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: false
+          prerelease: ${{ contains(env.APP_VERSION, '-dev') }}
+          release_name: Release ${{ env.APP_VERSION }}
+          tag_name: ${{ env.APP_VERSION }}
+
+      - name: "Get workflow ID to deploy"
+        id: "get-workflow-id-deploy"
+        run: |
+          result=$(curl -sL https://${{ secrets.SECRET_TOKEN }}@api.github.com/repos/${{ github.repository }}/actions/workflows)
+          echo $result
+          ID=$(echo $result | jq '.workflows[] | select(.path | contains("deploy")) | .id')
+
+          echo "::set-output name=WORKFLOW_ID::$ID"
+
+      - name: "Slack Notification on success"
+        if: "success()"
+        uses: "8398a7/action-slack@v3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
+        with:
+          status: "custom"
+          custom_payload: |
+            {
+              username: '${{ env.SLACK_USERNAME }}',
+              channel: '${{ secrets.SLACK_CHANNEL }}',
+              "icon_url": '${{ env.SLACK_ICON }}',
+              text: 'Workflow [${{ github.workflow }}] is successful.',
+              attachments: [{
+                "author_name": "${{ github.actor }}",
+                "author_link": "http://github.com/${{ github.actor }}",
+                "author_icon": "http://github.com/${{ github.actor }}.png?size=32",
+                color: '${{ env.SLACK_COLOR }}',
+                fields: [{
+                  title: 'Ref',
+                  value: '${{ github.ref }}',
+                  short: true
+                }, {
+                  title: 'Event',
+                  value: '${{ github.event_name }}',
+                  short: true
+                }, {
+                  title: 'Actions URL',
+                  value: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+                  short: false
+                }, {
+                  title: 'Release URL',
+                  value: 'https://github.com/${{ github.repository }}/releases/tag/${{ env.APP_VERSION }}',
+                  short: false
+                }, {
+                  title: 'Deploy Command',
+                  value: '```' + `curl -vvv -XPOST -H "Authorization: token YOUR-TOKEN" \\
+                    -H "Accept: application/vnd.github.everest-preview+json" \\
+                    "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ steps.get-workflow-id-deploy.outputs.WORKFLOW_ID }}/dispatches" \\
+                    -d '{ "ref": "${{ env.RELEASE_BRANCH }}", "inputs": { "env": "${{ env.RELEASE_ENV }}", "version": "${{ env.APP_VERSION }}" } }'` + '```',
+                  short: false
+                }]
+              }]
+            }
+
+      - name: "Slack Notification on failure"
+        if: "failure()"
+        uses: "8398a7/action-slack@v3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
+        with:
+          status: "custom"
+          custom_payload: |
+            {
+              username: '${{ env.SLACK_USERNAME }}',
+              channel: '${{ secrets.SLACK_CHANNEL }}',
+              "icon_url": '${{ env.SLACK_ICON }}',
+              text: 'Workflow [${{ github.workflow }}] is failure.',
+              attachments: [{
+                "author_name": "${{ github.actor }}",
+                "author_link": "http://github.com/${{ github.actor }}",
+                "author_icon": "http://github.com/${{ github.actor }}.png?size=32",
+                color: '${{ env.SLACK_COLOR_FAILED }}',
+                fields: [{
+                  title: 'Ref',
+                  value: '${{ github.ref }}',
+                  short: true
+                }, {
+                  title: 'Event',
+                  value: '${{ github.event_name }}',
+                  short: true
+                }, {
+                  title: 'Actions URL',
+                  value: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+                  short: false
+                }]
+              }]
+            }
