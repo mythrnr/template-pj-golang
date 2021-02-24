@@ -25,8 +25,14 @@ services:
       - "80:80"
     user: "root"
     volumes:
-      - "../build/nginx/godoc.conf:/etc/nginx/conf.d/default.conf:ro"
-      - "../docs/unit_tests:/var/www/html/unit_tests/github.com/mythrnr/template-pj-golang:ro"
+      - type: "bind"
+        source: "../build/nginx/godoc.conf"
+        target: "/etc/nginx/conf.d/default.conf"
+        read_only: true
+      - type: "bind"
+        source: "../docs/unit_tests"
+        target: "/var/www/html/unit_tests/github.com/mythrnr/template-pj-golang"
+        read_only: true
 
   godoc:
     build:
@@ -41,7 +47,16 @@ services:
       - 10000
     user: "golang"
     volumes:
-      - "../.netrc:/home/golang/.netrc:ro"
-      - "../:/go/src/github.com/mythrnr/template-pj-golang/:cached"
-      - "template_pj_golang_go_pkg:/go/pkg:rw"
+      - type: "bind"
+        source: "../.netrc"
+        target: "/home/golang/.netrc"
+        read_only: true
+      - type: "bind"
+        source: ".."
+        target: "/go/src/github.com/mythrnr/template-pj-golang"
+        read_only: true
+      - type: "volume"
+        source: "go_pkg"
+        target: "/go/pkg"
+        read_only: true
     working_dir: "/go/src/github.com/mythrnr/template-pj-golang"

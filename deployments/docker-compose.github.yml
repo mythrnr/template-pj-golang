@@ -5,7 +5,10 @@ services:
   app:
     user: "root"
     volumes:
-      - "../.netrc:/root/.netrc:ro"
+      - type: "bind"
+        source: "../.netrc"
+        target: "/root/.netrc"
+        read_only: true
 
   cli:
     user: "root"
