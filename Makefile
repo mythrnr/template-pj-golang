@@ -38,7 +38,7 @@ cover:
 
 godoc:
 	cd deployments \
-	&& docker-compose up docs
+	&& docker-compose up docs godoc
 
 integrate:
 	cd deployments \
