@@ -10,10 +10,10 @@ make mock
 
 ### 対象を指定して実行
 
-- `target` に指定したディレクトリ配下すべてが対象となる.
+- `pkg` に指定したディレクトリ配下すべてが対象となる.
 
-```
-make mock target=internal/usecase
+```bash
+make mock pkg=internal/usecase
 ```
 
 ## 02. 外部パッケージのモックを作成する（例）

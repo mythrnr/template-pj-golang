@@ -5,31 +5,6 @@ project_dir=$(cd $(dirname $(dirname ${0})) && pwd)
 src_dir=$(dirname $(dirname $(dirname ${project_dir})))
 doc_dir="${project_dir}/docs/unit_tests"
 
-# remove slash
-package=""
-if [ "x" != "x${1}" ]; then
-  tmp=$(echo ${1} | tr -d '.')
-  tmp="${tmp%*/}"
-  package="${tmp#/}"
-fi
-
-# target directory
-directory="${project_dir}"
-if [ "x" != "x${package}" ]; then
-  directory="${directory}/${package}"
-fi
-
-# for multi process test
-parallel=16
-
-# async options
-async=""
-chain="&& \\"
-if [ "x" != "x${2}" ]; then
-  async="&"
-  chain=""
-fi
-
 # create tmp shell
 tmp_filename="/tmp/"$(cat /dev/urandom | LC_CTYPE=C tr -dc "abcdefghijkmnpqrstuvwxyz" | fold -w 16 | head -n 1)
 echo "#!/bin/sh" >>$tmp_filename
@@ -59,7 +34,7 @@ function write_shell() {
     echo "| File | Line | Func | Coverage |"
     echo "| ---- | ----: | ---- | ----: |"
   } >${markdown}
-  go test -parallel ${parallel} -coverprofile=${outfile} "${pkg}" \\
+  go test -coverprofile=${outfile} "${pkg}" \\
   && go tool cover -html=${outfile} -o ${html} \\
   && go tool cover -func=${outfile} |
     tr -s '\t' |
@@ -68,7 +43,7 @@ function write_shell() {
     sed "s/total:/total\|/g" |
     sed "s/^/\|/g" |
     sed "s/$/\|/g" >>${markdown}
-} ${async} ${chain}
+}
 EOF
 
   pkglinks="${pkglinks}<li><a href=\"/unit_tests/${pkg}\">${pkg}</a></li>"
@@ -100,11 +75,7 @@ function generate_shell() {
 }
 
 cd $project_dir
-generate_shell $directory
-
-if [ "x" != "x${async}" ]; then
-  echo "wait" >> $tmp_filename
-fi
+generate_shell $project_dir
 
 echo "echo 'Testing successfully.'" >> $tmp_filename
 

@@ -1,0 +1,20 @@
+name: "Deploy Application"
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Release env ( `testing` or `production` )"
+        required: true
+        default: "testing"
+      version:
+        description: "Version to deploy"
+        required: true
+        default: ""
+
+jobs:
+  deploy:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - run: echo "run commands to release"

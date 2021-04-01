@@ -10,7 +10,7 @@ make test
 
 ```bash
 # domain 配下がすべてテスト対象になる
-make test target=domain
+make test pkg=domain
 ```
 
 [←Back](../README.md)

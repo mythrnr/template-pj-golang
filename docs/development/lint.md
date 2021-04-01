@@ -11,11 +11,10 @@ make lint
 
 ### 対象を指定して実行
 
-- `lint_target` に指定したディレクトリが対象となる.
-- 再帰的に実行したい場合は `dir/...` のように指定する.
+- `pkg` に指定したディレクトリ配下すべてが対象となる.
 
-```
-make lint lint_target=internal/usecase/...
+```bash
+make lint pkg=internal/usecase
 ```
 
 [←Back](../README.md)

@@ -1,56 +1,36 @@
 #!/bin/sh
 
-project_root=$(cd $(dirname $(dirname ${0})) && pwd)
+# define directories
+project_dir=$(cd $(dirname $(dirname ${0})) && pwd)
+src_dir=`go env GOPATH`/src
+
+cd $project_dir
 
 # target directory
-directory=$project_root${1:+/}$1
-echo ${directory:=$project_root} > /dev/null
+directory=$project_dir${1:+/}$1
+echo ${directory:=$project_dir} > /dev/null
 
-# create tmp shell
-tmp_filename="/tmp/"$(cat /dev/urandom | LC_CTYPE=C tr -dc "abcdefghijkmnpqrstuvwxyz" | fold -w 16 | head -n 1)
-echo "#!/bin/sh" >>$tmp_filename
-chmod 700 $tmp_filename
+# remove slash
+package=""
+if [ "x" != "x${1}" ]; then
+  tmp=$(echo ${1} | tr -d '.')
+  tmp="${tmp%*/}"
+  package="${tmp#/}"
+fi
 
-#
-# コマンドの書き込み
-#
-# @param $1 string 対象ディレクトリ
-#
-function write_shell() {
-  echo "echo $1 && mockery -case=underscore -name=.* -dir $1 -output $1/mocks" >> $tmp_filename
-  echo "echo $? >> /dev/null" >> $tmp_filename
-}
+go list ./... | grep -v mocks | grep -v integrate > go.list
 
-#
-# シェルの書き込みを再帰的に実行する処理
-# モックのディレクトリは除外する
-#
-# @param $1 string 書き込みルートディレクトリ
-#
-function generate_shell() {
-  if $(echo $1 | grep -e mocks -e integrate > /dev/null); then
-    return
+target=`cat go.list`
+if [ "x" != "x${package}" ]; then
+  target=`cat go.list | grep ${package}`
+fi
+
+rm -rf go.list
+
+for d in ${target}; do
+  dir="${src_dir}/${d}"
+  if [ -d "${dir}" ]; then
+    echo ${dir}
+    mockery -case=underscore -name=.* -dir ${dir} -output ${dir}/mocks
   fi
-
-  ls $1/*.go >>/dev/null 2>&1
-  exists=$?
-
-  if [ "0" = "$exists" ]; then
-    write_shell $1
-  fi
-
-  for d in $(ls $1); do
-    if [ -d "${1}/${d}" ]; then
-      generate_shell "${1}/${d}"
-    fi
-  done
-}
-
-cd $project_root
-generate_shell $directory
-
-sh $tmp_filename
-sts=$?
-rm -f $tmp_filename
-
-exit $sts
+done

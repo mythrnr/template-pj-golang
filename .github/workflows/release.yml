@@ -1,4 +1,4 @@
-name: "Build Container and Create Release"
+name: "Create Release"
 
 on:
   push:
@@ -12,15 +12,13 @@ env:
   SLACK_USERNAME: "GitHub Actions"
 
 jobs:
-  release:
-    name: "Build Container and Create Release"
+  create_release:
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v2"
 
-      - name: "Get app version"
-        run: |
-          echo "APP_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      - name: "Set Version"
+        run: echo "APP_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - if: "contains(github.ref, '-dev')"
         name: "Set Release env variables for Testing"
@@ -68,19 +66,19 @@ jobs:
         id: "create-release"
         uses: "actions/create-release@v1.1.0"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           draft: false
-          prerelease: ${{ contains(env.APP_VERSION, '-dev') }}
-          release_name: Release ${{ env.APP_VERSION }}
-          tag_name: ${{ env.APP_VERSION }}
+          prerelease: "${{ contains(env.APP_VERSION, '-dev') }}"
+          release_name: "Release ${{ env.APP_VERSION }}"
+          tag_name: "${{ env.APP_VERSION }}"
 
       - name: "Get workflow ID to deploy"
         id: "get-workflow-id-deploy"
         run: |
           result=$(curl -sL https://${{ secrets.SECRET_TOKEN }}@api.github.com/repos/${{ github.repository }}/actions/workflows)
           echo $result
-          ID=$(echo $result | jq '.workflows[] | select(.path | contains("deploy")) | .id')
+          ID=$(echo $result | jq '.workflows[] | select(.path | contains("deploy_app")) | .id')
 
           echo "::set-output name=WORKFLOW_ID::$ID"
 
