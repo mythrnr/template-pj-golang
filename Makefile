@@ -132,7 +132,9 @@ tidy:
 		run --rm --no-deps app go mod tidy
 
 version:
-	cd deployments \
+	GO_VERSION=$(go_version) \
+	&& GO_PKGDIR=$(go_pkgdir) \
+	&& cd deployments \
 	&& docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
