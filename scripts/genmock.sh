@@ -34,3 +34,5 @@ for d in ${target}; do
     mockery -case=underscore -name=.* -dir ${dir} -output ${dir}/mocks
   fi
 done
+
+exit 0
