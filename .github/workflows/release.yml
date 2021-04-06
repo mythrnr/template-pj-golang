@@ -34,32 +34,22 @@ jobs:
           echo "RELEASE_ENV=production" >> $GITHUB_ENV
           echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_PRODUCTION }}" >> $GITHUB_ENV
 
-      - name: "Cache Docker volume dir"
-        uses: "actions/cache@v2"
-        # use this to check for `cache-hit`
-        # `steps.docker-volumes.outputs.cache-hit != 'true'`
-        id: "docker-volumes"
-        with:
-          path: "/var/lib/docker/volumes"
-          key: "${{ runner.os }}-mythrnr-template-pj-golang-${{ hashFiles(format('{0}{1}', github.workspace, '/go.sum')) }}"
-          restore-keys: "${{ runner.os }}-mythrnr-template-pj-golang-"
-
       - name: "Login Dockerhub"
         uses: "docker/login-action@v1"
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: "${{ secrets.DOCKERHUB_USERNAME }}"
+          password: "${{ secrets.DOCKERHUB_TOKEN }}"
 
       - name: "Build Container"
         env:
-          APP_VERSION: ${{ env.APP_VERSION }}
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          APP_VERSION: "${{ env.APP_VERSION }}"
+          GITHUB_TOKEN: "${{ secrets.SECRET_TOKEN }}"
         run: "make build"
 
       - name: "Push Container"
         env:
-          APP_VERSION: ${{ env.APP_VERSION }}
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          APP_VERSION: "${{ env.APP_VERSION }}"
+          GITHUB_TOKEN: "${{ secrets.SECRET_TOKEN }}"
         run: "make push"
 
       - name: "Create release"
