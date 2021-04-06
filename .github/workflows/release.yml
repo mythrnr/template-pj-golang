@@ -25,14 +25,14 @@ jobs:
         run: |
           echo "RELEASE_BRANCH=develop" >> $GITHUB_ENV
           echo "RELEASE_ENV=testing" >> $GITHUB_ENV
-          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_TESTING }}" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.TESTING_SLACK_WEBHOOK }}" >> $GITHUB_ENV
 
       - if: "!contains(github.ref, '-dev')"
         name: "Set Release env variables for Production"
         run: |
           echo "RELEASE_BRANCH=master" >> $GITHUB_ENV
           echo "RELEASE_ENV=production" >> $GITHUB_ENV
-          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_PRODUCTION }}" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.PRODUCTION_SLACK_WEBHOOK }}" >> $GITHUB_ENV
 
       - name: "Login Dockerhub"
         uses: "docker/login-action@v1"

@@ -27,6 +27,12 @@ jobs:
     steps:
       - uses: "actions/checkout@v2"
 
+      - name: "Put .netrc"
+        run: |
+          echo "machine github.com" >> ~/.netrc
+          echo "    login ${{ secrets.SECRET_TOKEN }}" >> ~/.netrc
+          echo "    password x-oauth-basic" >> ~/.netrc
+
       - uses: "golangci/golangci-lint-action@v2"
         with:
           version: "latest"
@@ -37,6 +43,12 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v2"
+
+      - name: "Put .netrc"
+        run: |
+          echo "machine github.com" >> ~/.netrc
+          echo "    login ${{ secrets.SECRET_TOKEN }}" >> ~/.netrc
+          echo "    password x-oauth-basic" >> ~/.netrc
 
       - uses: "actions/setup-go@v1"
         with:
