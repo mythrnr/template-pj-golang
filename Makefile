@@ -120,7 +120,7 @@ test-json:
 	&& docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
-		run --rm app go test -cover -json ./...
+		run --rm app sh scripts/test.sh . -json
 
 tidy:
 	GO_VERSION=$(go_version) \

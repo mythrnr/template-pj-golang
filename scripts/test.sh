@@ -13,6 +13,12 @@ if [ "x" != "x${1}" ]; then
   package="${tmp#/}"
 fi
 
+# output as json
+json=""
+if [ "x" != "x${2}" ]; then
+  json="-json"
+fi
+
 go list ./... | grep -v mocks | grep -v integrate > go.list
 
 target=`cat go.list`
@@ -22,10 +28,10 @@ fi
 
 rm -rf go.list
 
-go test -cover ${target}
+go test -cover ${json} ${target}
 sts=$?
 
-if [ "x0" = "x$sts" ]; then
+if [ "x0" = "x$sts" ] && [ "x" = "x$json" ]; then
   echo "Testing successfully."
 fi
 

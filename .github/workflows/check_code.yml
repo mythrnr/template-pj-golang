@@ -101,12 +101,11 @@ jobs:
           password: "${{ secrets.DOCKERHUB_TOKEN }}"
 
       - name: "Get GOMODCACHE directory path"
-        id: "gomodcache-dir"
         run: |
           GOMODCACHE=$(go env GOPATH)/pkg
           mkdir -p $GOMODCACHE
 
-          echo "::set-output name=dir::$GOMODCACHE"
+          echo "GO_PKGDIR=$GOMODCACHE" >> $GITHUB_ENV
 
       - name: "Cache GOMODCACHE directory"
         uses: "actions/cache@v2"
@@ -114,13 +113,11 @@ jobs:
         # `steps.gomodcache.outputs.cache-hit != 'true'`
         id: "gomodcache"
         with:
-          path: "${{ steps.gomodcache-dir.outputs.dir }}"
+          path: "${{ env.GO_PKGDIR }}"
           key: "${{ runner.os }}-mythrnr-template-pj-golang-check-code-unit-test-${{ hashFiles(format('{0}{1}', github.workspace, '/.github/workflows/check_code.yml')) }}-${{ hashFiles(format('{0}{1}', github.workspace, '/go.sum')) }}"
           restore-keys: "${{ runner.os }}-mythrnr-template-pj-golang-check-code-unit-test-"
 
       - name: "Prepare Unit Test"
-        env:
-          GO_PKGDIR: "${{ steps.gomodcache-dir.outputs.dir }}"
         run: |
           make pull \
             overridefile=github \
@@ -142,7 +139,12 @@ jobs:
           sudo chown -R $CUR_USER:$CUR_GROUP ${{ env.GO_PKGDIR }}
 
       - name: "Run tests"
-        run: "make test-json 1> result.json 2> /dev/null"
+        run: |
+          make test-json \
+            overridefile=github \
+            go_version=${{ env.GO_VERSION }} \
+            go_pkgdir=${{ env.GO_PKGDIR }} \
+            1> result.json
 
       - name: "Annotate tests"
         if: "always()"
@@ -178,7 +180,7 @@ jobs:
                   value: '${{ github.event_name }}',
                   short: true
                 }, {
-                  title: 'Actions URL (Artifacts are exist)',
+                  title: 'Actions URL',
                   value: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
                   short: false
                 }]
