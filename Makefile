@@ -4,7 +4,7 @@
 command = help
 compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
-go_version ?= 1.15
+go_version ?= 1.16
 overridefile ?= override
 pkg ?=
 

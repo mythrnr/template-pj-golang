@@ -1,4 +1,9 @@
-FROM golang:1.15-alpine as base
+ARG GO_VERSION="1.16"
+
+#
+# Prepare image to develop.
+#
+FROM golang:${GO_VERSION}-alpine as base
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
@@ -42,15 +47,20 @@ RUN set -x \
         ${WORK_DIR}/pkg/* \
         ${WORK_DIR}/src/*
 
+#
+# Build app files.
+#
 FROM base as builder
 
 ARG APP_VERSION
 ARG GITHUB_TOKEN
-ARG GITHUB_REPO_BASE="https://${GITHUB_TOKEN}:x-oauth-basic@github.com/mythrnr"
+ARG GITHUB_BASE="https://${GITHUB_TOKEN}:x-oauth-basic@github.com"
+ARG GITHUB_ORG="mythrnr"
+ARG GITHUB_REPO="template-pj-golang"
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ARG SOURCE_COMMIT
-ARG WORK_DIR="/go/src/github.com/mythrnr"
+ARG WORK_DIR="/go/src/github.com"
 
 WORKDIR ${WORK_DIR}
 
@@ -63,15 +73,20 @@ USER golang
 RUN : "${GITHUB_TOKEN:?GITHUB_TOKEN is required.}" \
     && : "${APP_VERSION:?APP_VERSION is required.}" \
     && set -x \
-    && git config --global url."${GITHUB_REPO_BASE}".insteadOf "https://github.com/mythrnr" \
-    && git clone ${GITHUB_REPO_BASE}/template-pj-golang.git \
-    && cd template-pj-golang \
+    && git config --global url."${GITHUB_BASE}".insteadOf "https://github.com" \
+    && mkdir ${GITHUB_ORG} \
+    && cd ${GITHUB_ORG} \
+    && git clone ${GITHUB_BASE}/${GITHUB_ORG}/${GITHUB_REPO}.git \
+    && cd ${GITHUB_REPO} \
     && git checkout `git rev-parse ${APP_VERSION}` \
     && cd cmd/cli/generator/version \
     && go generate \
-    && cd ${WORK_DIR}/template-pj-golang \
+    && cd ${WORK_DIR}/${GITHUB_ORG}/${GITHUB_REPO} \
     && sh scripts/build.sh
 
+#
+# Prepare image to execute.
+#
 FROM alpine as executer
 
 ARG HTTP_PROXY
@@ -109,6 +124,9 @@ RUN set -x \
 
 USER golang
 
+#
+# Build image for HTTP server.
+#
 FROM executer as app
 
 ARG WORK_DIR="/go/src/github.com/mythrnr/template-pj-golang"
@@ -118,13 +136,14 @@ WORKDIR ${WORK_DIR}
 USER root
 
 COPY --from=builder --chown=golang:golang ${WORK_DIR}/bin/http ${WORK_DIR}/bin/http
-COPY --from=builder --chown=golang:golang ${WORK_DIR}/configs/config.yml ${WORK_DIR}/configs/config.yml
-COPY --from=builder --chown=golang:golang ${WORK_DIR}/configs/lang ${WORK_DIR}/configs/lang
 
 USER golang
 
 CMD [ "./bin/http/api" ]
 
+#
+# Build image for CLI app.
+#
 FROM executer as cli
 
 ARG WORK_DIR="/go/src/github.com/mythrnr/template-pj-golang"
@@ -134,8 +153,6 @@ WORKDIR ${WORK_DIR}
 USER root
 
 COPY --from=builder --chown=golang:golang ${WORK_DIR}/bin/cli ${WORK_DIR}/bin/cli
-COPY --from=builder --chown=golang:golang ${WORK_DIR}/configs/config.yml ${WORK_DIR}/configs/config.yml
-COPY --from=builder --chown=golang:golang ${WORK_DIR}/configs/lang ${WORK_DIR}/configs/lang
 
 USER golang
 

@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VERSION: "1.15"
+  GO_VERSION: "1.16"
   SLACK_COLOR_FAILED: "#a92d2e"
   SLACK_COLOR: "#32bd77"
   SLACK_ICON: "https://github.com/github.png"
@@ -152,9 +152,16 @@ jobs:
         with:
           test-results: "result.json"
 
-      - name: "Slack Notification on success"
-        if: "success()"
-        uses: "8398a7/action-slack@v3"
+  notify:
+    name: "Slack Notification on success"
+    runs-on: "ubuntu-latest"
+    needs:
+      - "golangci"
+      - "scan_vulnerabilities"
+      - "testing"
+
+    steps:
+      - uses: "8398a7/action-slack@v3"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
@@ -187,9 +194,18 @@ jobs:
               }]
             }
 
-      - name: "Slack Notification on failure"
-        if: "failure()"
-        uses: "8398a7/action-slack@v3"
+  notify_failure:
+    if: "failure()"
+    name: "Slack Notification on failure"
+    runs-on: "ubuntu-latest"
+    needs:
+      - "golangci"
+      - "scan_vulnerabilities"
+      - "testing"
+      - "notify"
+
+    steps:
+      - uses: "8398a7/action-slack@v3"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"

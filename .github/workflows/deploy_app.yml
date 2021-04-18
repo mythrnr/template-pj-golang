@@ -12,9 +12,97 @@ on:
         required: true
         default: ""
 
+env:
+  SLACK_COLOR_FAILED: "#a92d2e"
+  SLACK_COLOR: "#32bd77"
+  SLACK_ICON: "https://github.com/github.png"
+  SLACK_USERNAME: "GitHub Actions"
+
 jobs:
   deploy:
     runs-on: "ubuntu-latest"
 
     steps:
       - run: echo "run commands to release"
+
+  notify:
+    name: "Slack Notification on success"
+    runs-on: "ubuntu-latest"
+    needs:
+      - "deploy"
+
+    steps:
+      - uses: "8398a7/action-slack@v3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
+        with:
+          status: "custom"
+          custom_payload: |
+            {
+              username: '${{ env.SLACK_USERNAME }}',
+              channel: '${{ secrets.SLACK_CHANNEL }}',
+              "icon_url": '${{ env.SLACK_ICON }}',
+              text: 'Workflow [${{ github.workflow }}] is successful.',
+              attachments: [{
+                "author_name": "${{ github.actor }}",
+                "author_link": "http://github.com/${{ github.actor }}",
+                "author_icon": "http://github.com/${{ github.actor }}.png?size=32",
+                color: '${{ env.SLACK_COLOR }}',
+                fields: [{
+                  title: 'Ref',
+                  value: '${{ github.ref }}',
+                  short: true
+                }, {
+                  title: 'Event',
+                  value: '${{ github.event_name }}',
+                  short: true
+                }, {
+                  title: 'Actions URL',
+                  value: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+                  short: false
+                }]
+              }]
+            }
+
+  notify_failure:
+    if: "failure()"
+    name: "Slack Notification on failure"
+    runs-on: "ubuntu-latest"
+    needs:
+      - "deploy"
+      - "notify"
+
+    steps:
+      - uses: "8398a7/action-slack@v3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
+        with:
+          status: "custom"
+          custom_payload: |
+            {
+              username: '${{ env.SLACK_USERNAME }}',
+              channel: '${{ secrets.SLACK_CHANNEL }}',
+              "icon_url": '${{ env.SLACK_ICON }}',
+              text: 'Workflow [${{ github.workflow }}] is failure.',
+              attachments: [{
+                "author_name": "${{ github.actor }}",
+                "author_link": "http://github.com/${{ github.actor }}",
+                "author_icon": "http://github.com/${{ github.actor }}.png?size=32",
+                color: '${{ env.SLACK_COLOR_FAILED }}',
+                fields: [{
+                  title: 'Ref',
+                  value: '${{ github.ref }}',
+                  short: true
+                }, {
+                  title: 'Event',
+                  value: '${{ github.event_name }}',
+                  short: true
+                }, {
+                  title: 'Actions URL',
+                  value: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+                  short: false
+                }]
+              }]
+            }
