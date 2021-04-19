@@ -32,13 +32,13 @@ jobs:
         name: "Set env variables for Production"
         run: |
           echo "DEV_ENV=production" >> $GITHUB_ENV
-          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_PRODUCTION }}" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.PRODUCTION_SLACK_WEBHOOK }}" >> $GITHUB_ENV
 
       - if: "!contains(github.ref, 'master')"
         name: "Set env variables for Testing"
         run: |
           echo "DEV_ENV=testing" >> $GITHUB_ENV
-          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_TESTING }}" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.TESTING_SLACK_WEBHOOK }}" >> $GITHUB_ENV
 
       - id: "setenv"
         run: |

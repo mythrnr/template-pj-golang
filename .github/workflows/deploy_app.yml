@@ -28,12 +28,12 @@ jobs:
       - if: "github.event.inputs.env == 'production'"
         name: "Set env variables for Production"
         run: |
-          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_PRODUCTION }}" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.PRODUCTION_SLACK_WEBHOOK }}" >> $GITHUB_ENV
 
       - if: "github.event.inputs.env == 'testing'"
         name: "Set env variables for Testing"
         run: |
-          echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_TESTING }}" >> $GITHUB_ENV
+          echo "SLACK_WEBHOOK=${{ secrets.TESTING_SLACK_WEBHOOK }}" >> $GITHUB_ENV
 
       - id: "setenv"
         run: |
