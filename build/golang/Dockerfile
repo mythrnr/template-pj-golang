@@ -91,7 +91,7 @@ FROM alpine as executer
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
-ARG WORK_DIR="/go"
+ARG WORK_DIR="/tmp"
 ARG ZONEINFO_FILE_LOCATION="/usr/local/go/lib/time/zoneinfo.zip"
 ARG ZONEINFO_FILE_URL="https://github.com/golang/go/raw/master/lib/time/zoneinfo.zip"
 
@@ -129,31 +129,35 @@ USER golang
 #
 FROM executer as app
 
-ARG WORK_DIR="/go/src/github.com/mythrnr/template-pj-golang"
+ARG WORK_DIR="/home/golang"
 
 WORKDIR ${WORK_DIR}
 
 USER root
 
-COPY --from=builder --chown=golang:golang ${WORK_DIR}/bin/http ${WORK_DIR}/bin/http
+COPY --from=builder --chown=golang:golang \
+    /go/src/github.com/mythrnr/template-pj-golang/bin/http/api \
+    ${WORK_DIR}/bin/api
 
 USER golang
 
-CMD [ "./bin/http/api" ]
+CMD [ "./bin/api" ]
 
 #
 # Build image for CLI app.
 #
 FROM executer as cli
 
-ARG WORK_DIR="/go/src/github.com/mythrnr/template-pj-golang"
+ARG WORK_DIR="/home/golang"
 
 WORKDIR ${WORK_DIR}
 
 USER root
 
-COPY --from=builder --chown=golang:golang ${WORK_DIR}/bin/cli ${WORK_DIR}/bin/cli
+COPY --from=builder --chown=golang:golang \
+    /go/src/github.com/mythrnr/template-pj-golang/bin/cli/cli \
+    ${WORK_DIR}/bin/cli
 
 USER golang
 
-CMD [ "./bin/cli/cli" ]
+CMD [ "./bin/cli" ]
