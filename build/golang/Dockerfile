@@ -38,7 +38,7 @@ RUN set -x \
         github.com/golang/mock/mockgen \
         github.com/vektra/mockery/.../ \
         golang.org/x/tools/cmd/godoc \
-    && go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.27.0 \
+    && go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.39.0 \
     && GO111MODULE="off" go get -v \
         github.com/oxequa/realize \
     && chown -R golang:golang ${WORK_DIR} \
@@ -79,8 +79,6 @@ RUN : "${GITHUB_TOKEN:?GITHUB_TOKEN is required.}" \
     && git clone ${GITHUB_BASE}/${GITHUB_ORG}/${GITHUB_REPO}.git \
     && cd ${GITHUB_REPO} \
     && git checkout `git rev-parse ${APP_VERSION}` \
-    && cd cmd/cli/generator/version \
-    && go generate \
     && cd ${WORK_DIR}/${GITHUB_ORG}/${GITHUB_REPO} \
     && sh scripts/build.sh
 

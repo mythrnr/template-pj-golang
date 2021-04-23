@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 
+	myproject "github.com/mythrnr/template-pj-golang"
 	"github.com/mythrnr/template-pj-golang/pkg/cli"
 )
 
@@ -16,4 +17,6 @@ func NewCLI() cli.CLI {
 
 func (c *cliApp) Execute(args []string) {
 	fmt.Println("[CLI] Hello world.", args)
+	fmt.Println("[CLI] Version", myproject.Version)
+	fmt.Println("[CLI] Revision", myproject.Revision)
 }
