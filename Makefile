@@ -4,14 +4,12 @@
 command = help
 compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
-go_version ?= 1.16
 overridefile ?= override
 pkg ?=
 
 build:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.build.yml \
@@ -20,7 +18,6 @@ build:
 build-container:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -33,7 +30,6 @@ clean:
 cli:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -43,7 +39,6 @@ cli:
 cover:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -53,14 +48,12 @@ cover:
 godoc:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose up docs godoc
 
 integrate:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -71,19 +64,15 @@ lint:
 	cd deployments \
 	&& \
 	PKG=$(pkg) \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
-		run --rm --no-deps app golangci-lint run \
-			--config=./.golangci.yml \
-			--print-issued-lines=false $${PKG:-.}/...
+		run --rm --no-deps app golangci-lint run $${PKG:-.}/...
 
 mock:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose run --rm --no-deps app \
 		sh scripts/genmock.sh $(pkg)
@@ -91,7 +80,6 @@ mock:
 pull:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -100,7 +88,6 @@ pull:
 push:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.build.yml push
@@ -108,7 +95,6 @@ push:
 serve:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -118,7 +104,6 @@ serve:
 test:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -128,7 +113,6 @@ test:
 test-json:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
@@ -138,20 +122,8 @@ test-json:
 tidy:
 	cd deployments \
 	&& \
-	GO_VERSION=$(go_version) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
 		run --rm --no-deps app go mod tidy
-
-version:
-	cd deployments \
-	&& \
-	GO_VERSION=$(go_version) \
-	GO_PKGDIR=$(go_pkgdir) \
-	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
-		run --rm --no-deps app sh \
-			-c 'cd cmd/cli/generator/version && go generate'

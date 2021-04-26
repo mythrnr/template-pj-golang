@@ -19,26 +19,6 @@ env:
   SLACK_USERNAME: "GitHub Actions"
 
 jobs:
-  env:
-    name: "set env"
-    runs-on: "ubuntu-latest"
-    outputs:
-      SLACK_WEBHOOK: "${{ steps.setenv.outputs.SLACK_WEBHOOK }}"
-    steps:
-      - if: "github.event.inputs.env == 'production'"
-        name: "Set env variables for Production"
-        run: |
-          echo "SLACK_WEBHOOK=${{ secrets.PRODUCTION_SLACK_WEBHOOK }}" >> $GITHUB_ENV
-
-      - if: "github.event.inputs.env == 'testing'"
-        name: "Set env variables for Testing"
-        run: |
-          echo "SLACK_WEBHOOK=${{ secrets.TESTING_SLACK_WEBHOOK }}" >> $GITHUB_ENV
-
-      - id: "setenv"
-        run: |
-          echo "::set-output name=SLACK_WEBHOOK::${{ env.SLACK_WEBHOOK }}"
-
   deploy:
     runs-on: "ubuntu-latest"
     needs:
@@ -51,10 +31,13 @@ jobs:
     name: "Slack Notification on success"
     runs-on: "ubuntu-latest"
     needs:
-      - "env"
       - "deploy"
     env:
-      SLACK_WEBHOOK: "${{ needs.env.outputs.SLACK_WEBHOOK }}"
+      SLACK_WEBHOOK: |
+        ${{ secrets[fromJSON('[
+          "TESTING_SLACK_WEBHOOK",
+          "PRODUCTION_SLACK_WEBHOOK"
+        ]')[github.event.inputs.env == 'production']] }}
 
     steps:
       - uses: "8398a7/action-slack@v3"
@@ -99,7 +82,11 @@ jobs:
       - "deploy"
       - "notify"
     env:
-      SLACK_WEBHOOK: "${{ needs.env.outputs.SLACK_WEBHOOK }}"
+      SLACK_WEBHOOK: |
+        ${{ secrets[fromJSON('[
+          "TESTING_SLACK_WEBHOOK",
+          "PRODUCTION_SLACK_WEBHOOK"
+        ]')[github.event.inputs.env == 'production']] }}
 
     steps:
       - uses: "8398a7/action-slack@v3"

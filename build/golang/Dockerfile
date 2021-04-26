@@ -1,9 +1,7 @@
-ARG GO_VERSION="1.16"
-
 #
 # Prepare image to develop.
 #
-FROM golang:${GO_VERSION}-alpine as base
+FROM golang:1.16-alpine as base
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY

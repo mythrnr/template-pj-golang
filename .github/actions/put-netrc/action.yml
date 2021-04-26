@@ -1,0 +1,19 @@
+# via https://docs.github.com/en/actions/creating-actions/creating-a-composite-run-steps-action#creating-an-action-metadata-file
+name: "Put .netrc"
+description: "Put .netrc to access private repositories."
+inputs:
+  secret-token:
+    description: "Access Token allowed to clone other repository."
+    required: true
+  location:
+    description: "location to put .netrc"
+    required: true
+    default: "~/.netrc"
+runs:
+  using: "composite"
+  steps:
+    - shell: "bash"
+      run: |
+        echo "machine github.com" >> ${{ inputs.location }}
+        echo "    login ${{ inputs.secret-token }}" >> ${{ inputs.location }}
+        echo "    password x-oauth-basic" >> ${{ inputs.location }}
