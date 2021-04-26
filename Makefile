@@ -5,7 +5,7 @@ command = help
 compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
 overridefile ?= override
-pkg ?=
+pkg ?= .
 
 build:
 	cd deployments \
@@ -63,12 +63,11 @@ integrate:
 lint:
 	cd deployments \
 	&& \
-	PKG=$(pkg) \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
-		run --rm --no-deps app golangci-lint run $${PKG:-.}/...
+		run --rm --no-deps app golangci-lint run $(pkg)/...
 
 mock:
 	cd deployments \
