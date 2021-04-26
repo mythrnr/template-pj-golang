@@ -46,6 +46,7 @@ linters-settings:
 
 linters:
   disable:
+    - "exhaustivestruct"
     - "interfacer"
     - "maligned"
   presets:
