@@ -108,7 +108,6 @@ jobs:
           echo "::set-output name=WORKFLOW_ID::$ID"
 
       - name: "Notify"
-        if: "success()"
         uses: "8398a7/action-slack@v3"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
