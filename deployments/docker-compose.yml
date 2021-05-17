@@ -50,7 +50,7 @@ services:
       - type: "volume"
         source: "go_pkg"
         target: "/go/pkg"
-        read_only: true
+        read_only: false
     working_dir: "/go/src/github.com/mythrnr/template-pj-golang"
 
   cli: *app

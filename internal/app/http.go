@@ -15,6 +15,7 @@ func NewServer() http.Server {
 	return &srv{}
 }
 
+// nolint:forbidigo
 func (s *srv) Start() {
 	fmt.Println("[Server] Hello world.")
 	fmt.Println("[Server] Version", myproject.Version)

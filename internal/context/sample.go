@@ -2,6 +2,7 @@ package context
 
 import "context"
 
+// nolint:gochecknoglobals
 var _contextKeyValue = &key{"_contextKeyValue"}
 
 // GetValue は引数の `context` から値を取得する.

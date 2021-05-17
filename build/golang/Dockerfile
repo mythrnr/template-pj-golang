@@ -5,6 +5,7 @@ FROM golang:1.16-alpine as base
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
+ARG GOLANGCI_LINT_URL="https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh"
 ARG WORK_DIR="/go"
 ENV GO111MODULE="on"
 
@@ -36,9 +37,9 @@ RUN set -x \
         github.com/golang/mock/mockgen \
         github.com/vektra/mockery/.../ \
         golang.org/x/tools/cmd/godoc \
-    && go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.39.0 \
     && GO111MODULE="off" go get -v \
         github.com/oxequa/realize \
+    && wget -O- -nv $GOLANGCI_LINT_URL | sh -s \
     && chown -R golang:golang ${WORK_DIR} \
     && rm -rf \
         /var/cache/apk/* \

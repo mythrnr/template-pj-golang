@@ -9,6 +9,7 @@ run:
     - "configs"
     - "deployments"
     - "docs"
+    - "mocks"
     - "scripts"
 
 output:
@@ -46,9 +47,12 @@ linters-settings:
 
 linters:
   disable:
-    - "exhaustivestruct"
+    # ---- deprecated ---- #
+    - "golint"
     - "interfacer"
     - "maligned"
+    - "scopelint"
+    # -------------------- #
   presets:
     - "bugs"
     - "complexity"

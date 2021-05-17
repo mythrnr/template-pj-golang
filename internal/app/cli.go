@@ -15,6 +15,7 @@ func NewCLI() cli.CLI {
 	return &cliApp{}
 }
 
+// nolint:forbidigo
 func (c *cliApp) Execute(args []string) {
 	fmt.Println("[CLI] Hello world.", args)
 	fmt.Println("[CLI] Version", myproject.Version)
