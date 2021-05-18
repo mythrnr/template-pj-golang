@@ -99,8 +99,8 @@ jobs:
         id: "gomodcache"
         with:
           path: "${{ env.GO_PKGDIR }}"
-          key: "${{ runner.os }}-mythrnr-template-pj-golang-${{ hashFiles(format('{0}{1}', github.workspace, '/.github/workflows/check_code.yml')) }}-${{ hashFiles(format('{0}{1}', github.workspace, '/go.sum')) }}"
-          restore-keys: "${{ runner.os }}-mythrnr-template-pj-golang-"
+          key: "${{ runner.os }}-${{ hashFiles(format('{0}{1}', github.workspace, '/.github/workflows/check_code.yml')) }}-${{ hashFiles(format('{0}{1}', github.workspace, '/go.sum')) }}"
+          restore-keys: "${{ runner.os }}-"
 
       - name: "Prepare Unit Test"
         run: |
