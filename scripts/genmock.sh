@@ -31,7 +31,12 @@ for d in ${target}; do
   dir="${src_dir}/${d}"
   if [ -d "${dir}" ]; then
     echo ${dir}
-    mockery -case=underscore -name=.* -dir ${dir} -output ${dir}/mocks
+
+    mockery \
+      --name=.* \
+      --case=underscore \
+      --dir ${dir} \
+      --output ${dir}/mocks
   fi
 done
 

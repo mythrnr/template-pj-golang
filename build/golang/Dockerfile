@@ -33,13 +33,17 @@ RUN set -x \
         ${WORK_DIR}/bin \
         ${WORK_DIR}/pkg \
         ${WORK_DIR}/src \
+    && wget -O- -nv \
+        ${GOLANGCI_LINT_INSTALL_SHELL} \
+        | sh -s ${GOLANGCI_LINT_VERSION} \
+    && go install \
+        github.com/golang/mock/mockgen@latest \
+    && go install \
+        golang.org/x/tools/cmd/godoc@latest \
     && go get -v -u \
-        github.com/golang/mock/mockgen \
-        github.com/vektra/mockery/.../ \
-        golang.org/x/tools/cmd/godoc \
+        github.com/vektra/mockery/v2/.../ \
     && GO111MODULE="off" go get -v \
         github.com/oxequa/realize \
-    && wget -O- -nv $GOLANGCI_LINT_URL | sh -s \
     && chown -R golang:golang ${WORK_DIR} \
     && rm -rf \
         /var/cache/apk/* \
