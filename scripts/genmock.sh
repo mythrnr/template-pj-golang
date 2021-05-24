@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # define directories
 project_dir=$(cd $(dirname $(dirname ${0})) && pwd)

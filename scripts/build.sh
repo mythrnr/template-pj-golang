@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 
 project_dir=$(cd $(dirname $(dirname ${0})) && pwd)
 cd $project_dir

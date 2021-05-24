@@ -70,11 +70,7 @@ lint:
 		run --rm --no-deps app golangci-lint run $(pkg)/...
 
 mock:
-	cd deployments \
-	&& \
-	GO_PKGDIR=$(go_pkgdir) \
-	docker-compose run --rm --no-deps app \
-		sh scripts/genmock.sh $(pkg)
+	sh scripts/genmock.sh $(pkg)
 
 pull:
 	cd deployments \

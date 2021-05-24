@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # define directories
 project_dir=$(cd $(dirname $(dirname ${0})) && pwd)
@@ -7,7 +7,7 @@ doc_dir="${project_dir}/docs/unit_tests"
 
 # create tmp shell
 tmp_filename="/tmp/"$(cat /dev/urandom | LC_CTYPE=C tr -dc "abcdefghijkmnpqrstuvwxyz" | fold -w 16 | head -n 1)
-echo "#!/bin/sh" >>$tmp_filename
+echo "#!/bin/bash" >>$tmp_filename
 chmod 700 $tmp_filename
 
 # カバレッジの index.html 出力用
