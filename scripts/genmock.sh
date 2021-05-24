@@ -32,6 +32,8 @@ for d in ${target}; do
   if [ -d "${dir}" ]; then
     echo ${dir}
 
+    rm -rf ${dir}/mocks
+
     mockery \
       --name=.* \
       --case=underscore \
