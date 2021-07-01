@@ -2,7 +2,7 @@
 
 ## 01. アーキテクチャ概要
 
-- クリーンアーキテクチャに基づく実装
+- クリーンアーキテクチャとドメイン駆動設計に基づく実装
 
 ![クラス図](./classes.png)
 
@@ -10,13 +10,12 @@
 
 ### Entities
 
-- 値オブジェクトの定義と業務知識を記述する.
-- 集約オブジェクトパッケージ:  `internal/domain`
-- 値オブジェクトパッケージ: `internal/domain/*`
+- 値オブジェクトの定義と業務知識を表現する.
+- 値オブジェクト, 集約オブジェクトパッケージ: `internal/apps/*/domain`
 
 ## 03. Usecase 層
 
-- パッケージ: `internal/usecase` , `internal/usecase/*`
+- パッケージ: `internal/apps/*/usecase`
 
 ### Input Boundary
 
@@ -36,6 +35,7 @@
 ### Output Data
 
 - `Output Boundary` の処理のパラメータオブジェクトの定義.
+- 表示に必要なデータのみを渡すようにするため, この時点で各値は汎化しておく.
 
 ### Use Case Interactor
 
@@ -44,33 +44,31 @@
 
 ### Data Access Interface
 
-- データアクセス処理の定義.
+- 外部データアクセス処理の定義.
 - パラメータオブジェクトもここで定義.
 
 ## 04. Infrastructure 層
 
-- パッケージ: `internal/infra`
-
 ### Controller
 
-- パッケージ: `internal/infra/framework/handler`
-- HTTPリクエストをユースケースのリクエストオブジェクトに変換し, 処理を呼び出す.
+- パッケージ: `internal/apps/http/handler`
+- リクエストをユースケースの `Input Data` に変換し, 処理を呼び出す.
 
 ### Presenter
 
-- パッケージ: `internal/infra/framework/presenter`
+- パッケージ: `internal/apps/http/presenter`
 - `Output Boundary` の実装.
 - ユースケースの処理結果をクライアントに表示する処理.
 
 ### View Model, View
 
-- パッケージ: `internal/infra/framework/view`
-- HTML の配置場所: `web/templates/*`
+- パッケージ: `internal/apps/http/view`
+- HTML の配置場所: `internal/apps/http/view/html`
 
 ### Data Access, Database
 
-- パッケージ: `internal/infra/mysql`
+- パッケージ: `internal/apps/*/repository`
 - `Data Access Interface` の実装.
-- データベースへアクセスし, 読み取り, 書き出しを担う.
+- データベースや外部 API へアクセスし, 読み取り, 書き出しを担う.
 
 [←Back](../README.md)

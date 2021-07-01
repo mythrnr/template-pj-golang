@@ -19,13 +19,13 @@ if [ "x" != "x${2}" ]; then
   json="-json"
 fi
 
-go list ./... | grep -v mocks | grep -v integrate > go.list
-
-target=`cat go.list`
 if [ "x" != "x${package}" ]; then
-  target=`cat go.list | grep ${package}`
+  go list ./${package}/... | grep -v mocks | grep -v integrate > go.list
+else
+  go list ./... | grep -v mocks | grep -v integrate > go.list
 fi
 
+target=`cat go.list`
 rm -rf go.list
 
 go test -cover ${json} ${target}

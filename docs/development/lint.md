@@ -14,7 +14,7 @@ make lint
 - `pkg` に指定したディレクトリ配下すべてが対象となる.
 
 ```bash
-make lint pkg=internal/usecase
+make lint pkg=internal/apps
 ```
 
 [←Back](../README.md)

@@ -4,7 +4,7 @@
 
 ### 必須
 
-- `Docker` , `Docker Compose` , `GolangCI-Lint` , `make` , `mockery`
+- `Docker Compose` , `Docker` , `GolangCI-Lint` , `make` , `mockery`
 
 ```bash
 brew install \

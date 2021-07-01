@@ -70,16 +70,28 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.SECRET_TOKEN }}"
         run: "make push"
 
+      - name: "Create release note"
+        run: |
+          echo "## Change Log" > note.txt
+          echo "" >> note.txt
+
+          git fetch origin --tags
+
+          RECENT_TAG=$(git tag \
+            --no-contains=$GITHUB_SHA \
+            --sort="version:refname" \
+            | tail -1)
+
+          git log $RECENT_TAG..${{ env.APP_VERSION }} \
+            --pretty=format:"- %h : %s (by @%an)" >> note.txt
+
       - name: "Create release"
-        id: "create-release"
-        uses: "actions/create-release@v1.1.0"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          draft: false
-          prerelease: "${{ contains(env.APP_VERSION, '-dev') }}"
-          release_name: "Release ${{ env.APP_VERSION }}"
-          tag_name: "${{ env.APP_VERSION }}"
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+          gh release create ${{ env.APP_VERSION }} \
+            --title "Release ${{ env.APP_VERSION }}" \
+            --notes-file note.txt
 
   notify:
     name: "Slack Notification on success"
@@ -93,8 +105,8 @@ jobs:
       RELEASE_ENV: "${{ needs.env.outputs.RELEASE_ENV }}"
       SLACK_WEBHOOK: |
         ${{ secrets[fromJSON('[
-          "PRODUCTION_SLACK_WEBHOOK"
-          "TESTING_SLACK_WEBHOOK",
+          "PRODUCTION_SLACK_WEBHOOK",
+          "TESTING_SLACK_WEBHOOK"
         ]')[contains(github.ref, '-dev')]] }}
 
     steps:
@@ -163,8 +175,8 @@ jobs:
     env:
       SLACK_WEBHOOK: |
         ${{ secrets[fromJSON('[
-          "PRODUCTION_SLACK_WEBHOOK"
-          "TESTING_SLACK_WEBHOOK",
+          "PRODUCTION_SLACK_WEBHOOK",
+          "TESTING_SLACK_WEBHOOK"
         ]')[contains(github.ref, '-dev')]] }}
 
     steps:

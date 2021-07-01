@@ -1,4 +1,4 @@
-.PHONY: build build-container clean cli cover godoc integrate lint mock pull push serve test test-json tidy version
+.PHONY: build build-container clean cli cover deploy down fmt godoc integrate lint mock pull push serve test test-json tidy
 .SILENT: test-json
 
 command = help
@@ -6,6 +6,8 @@ compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
 overridefile ?= override
 pkg ?= .
+release ?= testing
+version ?= edge
 
 build:
 	cd deployments \
@@ -13,7 +15,7 @@ build:
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
 		-f docker-compose.build.yml \
-		build --parallel
+		build --parallel $(compose_opts)
 
 build-container:
 	cd deployments \
@@ -25,7 +27,7 @@ build-container:
 		build --parallel $(compose_opts)
 
 clean:
-	rm -rf .tmp .netrc .realize.yaml build/golang/.env docs/unit_tests
+	rm -rf .tmp .netrc .realize.yaml build/app/.env docs/unit_tests
 
 cli:
 	cd deployments \
@@ -44,6 +46,34 @@ cover:
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
 		run --rm app sh scripts/cover.sh
+
+deploy:
+	REF="master" \
+	&& : "$${GITHUB_TOKEN?:GITHUB_TOKEN is required.}" \
+	&& if [ "testing" = "$(release)" ]; then \
+		REF="develop"; \
+	fi \
+	&& curl -X POST -H "Authorization: token $${GITHUB_TOKEN}" \
+        -H "Accept: application/vnd.github.everest-preview+json" \
+        "https://api.github.com/repos/mythrnr/template-pj-golang/actions/workflows/****TODO:****/dispatches" \
+		-d "{ \"ref\": \"$${REF}\", \"inputs\": { \"env\": \"$(release)\", \"version\": \"$(version)\" } }"
+
+down:
+	cd deployments \
+	&& \
+	GO_PKGDIR=$(go_pkgdir) \
+	docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.$(overridefile).yml down --volumes
+
+fmt:
+	cd deployments \
+	&& \
+	GO_PKGDIR=$(go_pkgdir) \
+	docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.$(overridefile).yml \
+		run --no-deps app go fmt ./...
 
 godoc:
 	cd deployments \
@@ -121,4 +151,4 @@ tidy:
 	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.$(overridefile).yml \
-		run --rm --no-deps app go mod tidy
+		run --no-deps app go mod tidy

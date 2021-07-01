@@ -13,16 +13,16 @@ if [ "x" != "x${1}" ]; then
   package="${tmp#/}"
 fi
 
-go list integrate/... | grep -v mocks > go.list
-
-target=`cat go.list`
 if [ "x" != "x${package}" ]; then
-  target=`cat go.list | grep ${package}`
+  go list ./integrate/${package}/... | grep -v mocks > go.list
+else
+  go list ./integrate/... | grep -v mocks > go.list
 fi
 
+target=`cat go.list`
 rm -rf go.list
 
-go test -cover ${target}
+go test ${target}
 sts=$?
 
 if [ "x0" = "x$sts" ]; then

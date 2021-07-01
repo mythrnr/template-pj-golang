@@ -8,9 +8,10 @@ make test
 
 ### 対象を指定して実行
 
+- `pkg` に指定したディレクトリ配下が対象となる.
+
 ```bash
-# domain 配下がすべてテスト対象になる
-make test pkg=domain
+make test pkg=internal/apps
 ```
 
 [←Back](../README.md)

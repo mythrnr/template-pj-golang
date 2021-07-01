@@ -46,7 +46,7 @@ jobs:
         with:
           secret-token: "${{ secrets.SECRET_TOKEN }}"
 
-      - uses: "actions/setup-go@v1"
+      - uses: "actions/setup-go@v2"
         with:
           go-version: "1.16"
 
@@ -75,7 +75,7 @@ jobs:
           location: ".netrc"
           secret-token: "${{ secrets.SECRET_TOKEN }}"
 
-      - uses: "actions/setup-go@v1"
+      - uses: "actions/setup-go@v2"
         with:
           go-version: "1.16"
 
