@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/mythrnr/template-pj-golang/internal/app"
+	via "github.com/mythrnr/template-pj-golang/internal/builder/cli"
 )
 
 func main() {
-	c := app.NewCLI()
+	c := via.NewCLI()
 	c.Execute(os.Args)
 }

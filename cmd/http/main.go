@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/mythrnr/template-pj-golang/internal/app"
+	via "github.com/mythrnr/template-pj-golang/internal/builder/http"
 )
 
 func main() {
-	server := app.NewServer()
+	server := via.NewServer()
 	server.Start()
 }
