@@ -1,6 +1,3 @@
-.PHONY: build build-container clean cli cover deploy down fmt godoc integrate lint mock pull push serve test test-json tidy
-.SILENT: test-json
-
 command = help
 compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
@@ -9,44 +6,69 @@ pkg ?= .
 release ?= testing
 version ?= edge
 
+.PHONY: build
+.SILENT: build
 build:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.build.yml \
-		build --parallel $(compose_opts)
+		-f docker-compose.build.yaml \
+		build --parallel --pull $(compose_opts)
 
+.PHONY: build-container
+.SILENT: build-container
 build-container:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
-		build --parallel $(compose_opts)
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
+		build --parallel --pull $(compose_opts)
 
+	docker build \
+		-f ./docker/nginx/certs.Dockerfile \
+		-t mythrnr/template-pj-golang:mkcert-development .
+
+.PHONY: certs
+.SILENT: certs
+certs:
+	docker run --rm \
+		--volume=$(shell pwd):/workdir \
+		--volume=$(shell pwd)/docker/nginx/certs:/out \
+		--env=COMMON_NAME=localhost \
+		mythrnr/template-pj-golang:mkcert-development
+
+.PHONY: clean
+.SILENT: clean
 clean:
-	rm -rf .tmp .netrc .realize.yaml build/app/.env docs/unit_tests
+	rm -rf .tmp .netrc docker/app/.env docs/unit_tests
 
+.PHONY: cli
+.SILENT: cli
 cli:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
-		run --rm cli go run cmd/cli/cli/main.go -- $(command)
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
+		run --rm app go run main.go -- $(command)
 
+.PHONY: cover
+.SILENT: cover
 cover:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --rm app sh scripts/cover.sh
 
+.PHONY: deploy
+.SILENT: deploy
 deploy:
 	REF="master" \
 	&& : "$${GITHUB_TOKEN?:GITHUB_TOKEN is required.}" \
@@ -58,97 +80,121 @@ deploy:
         "https://api.github.com/repos/mythrnr/template-pj-golang/actions/workflows/****TODO:****/dispatches" \
 		-d "{ \"ref\": \"$${REF}\", \"inputs\": { \"env\": \"$(release)\", \"version\": \"$(version)\" } }"
 
+.PHONY: down
+.SILENT: down
 down:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml down --volumes
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml down
 
+.PHONY: fmt
+.SILENT: fmt
 fmt:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --no-deps app go fmt ./...
 
+.PHONY: godoc
+.SILENT: godoc
 godoc:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose up docs godoc
 
+.PHONY: integrate
+.SILENT: integrate
 integrate:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --rm app sh scripts/integrate.sh $(pkg)
 
+.PHONY: lint
+.SILENT: lint
 lint:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --rm --no-deps app golangci-lint run $(pkg)/...
 
+.PHONY: mock
+.SILENT: mock
 mock:
 	sh scripts/genmock.sh $(pkg)
 
+.PHONY: pull
+.SILENT: pull
 pull:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml pull
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml pull
 
+.PHONY: push
+.SILENT: push
 push:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.build.yml push
+		-f docker-compose.build.yaml push
 
+.PHONY: serve
+.SILENT: serve
 serve:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
-		up $(compose_opts) app cli database elasticsearch web
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
+		up $(compose_opts)
 
+.PHONY: test
+.SILENT: test
 test:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --rm app sh scripts/test.sh $(pkg)
 
+.PHONY: test-json
+.SILENT: test-json
 test-json:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --rm app sh scripts/test.sh . -json
 
+.PHONY: tidy
+.SILENT: tidy
 tidy:
-	cd deployments \
+	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
 	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.$(overridefile).yml \
+		-f docker-compose.yaml \
+		-f docker-compose.$(overridefile).yaml \
 		run --no-deps app go mod tidy

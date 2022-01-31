@@ -7,7 +7,7 @@
 - [Actions](https://github.com/mythrnr/template-pj-golang/actions) から実行
 - パラメータを下記の通り指定する
 
-| 名称 | キー |値 | 用途 |
+| 名称 | キー | 値 | 用途 |
 | - | - | - | - |
 | `Branch` | `ref` | `master` or `develop` | workflow で利用するブランチ |
 | `Release Env` | `inputs.env` | `production` or `testing` | デプロイ先の環境. 本番 or 検証 |

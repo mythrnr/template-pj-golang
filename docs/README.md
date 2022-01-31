@@ -2,7 +2,7 @@
 
 ## 01. 概要
 
-- [ディレクトリ構造](./introduction/directory_structure.md)
+- [ディレクトリ構成](./introduction/directory_structure.md)
 - [システム構成](./introduction/system_overview.md)
 
 ## 02. 準備
@@ -14,8 +14,9 @@
 
 - [ブランチモデル](./development/branching.md)
 - [モック作成](./development/genmock.md)
-- [Lintによる解析](./development/lint.md)
+- [Lint による解析](./development/lint.md)
 - [GoDoc](./development/godoc.md)
+- [OpenAPI Explorer](./development/openapi.md)
 - [ユニットテスト](./development/unit_testing.md)
 - [結合テスト](./development/integrate_testing.md)
 

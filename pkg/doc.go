@@ -1,6 +1,5 @@
 /*
-Package pkg は `Standard Go Project Layout` に則って
-外部からの呼び出しも許容する処理を提供する.
+Package pkg は汎用性のある処理を提供する.
 
 以下, 所感
 

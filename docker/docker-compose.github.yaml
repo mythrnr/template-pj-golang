@@ -1,0 +1,21 @@
+version: "3.8"
+
+# Github Actions用
+services:
+  app:
+    user: "root"
+    volumes:
+      - type: "bind"
+        source: "../.netrc"
+        target: "/root/.netrc"
+        read_only: true
+      - type: "bind"
+        source: "${GO_PKGDIR?:required}"
+        target: "/go/pkg"
+        read_only: false
+
+  database:
+    user: "root"
+
+  elasticsearch:
+    user: "root"

@@ -13,7 +13,7 @@ make mock
 - `pkg` に指定したディレクトリ配下すべてが対象となる.
 
 ```bash
-make mock pkg=internal/apps
+make mock pkg=apps
 ```
 
 ## 02. 外部パッケージのモックを作成する（例）

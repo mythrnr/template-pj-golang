@@ -4,7 +4,8 @@
 
 ### 必須
 
-- `Docker Compose` , `Docker` , `GolangCI-Lint` , `make` , `mockery`
+- `Docker Compose` , `Docker` , `GolangCI-Lint` ,
+  `make` , `mockery`
 
 ```bash
 brew install \
@@ -17,13 +18,14 @@ brew install \
 
 ### 推奨
 
-- `Sequel Ace` ... MySQL クライアント. `Sequel Pro` の後継的アプリ.  
-  [App Store](https://apps.apple.com/us/app/sequel-ace/id1518036000) からインストールする
-- `Visual Studio Code` ... `.vscode/settings.json` の効果を利用するためにも使用を推奨
-- 本体と必要な拡張機能は下記でインストール可能
+- [Sequel Ace](https://sequel-ace.com) ... MySQL クライアント. `Sequel Pro` の後継的アプリ.  
+- [Spotlight Studio](https://stoplight.io/studio/) ... OpenAPI ドキュメントを記述するツール
+- [Visual Studio Code](https://code.visualstudio.com/) ... `.vscode/settings.json` の効果を利用するためにも使用を推奨
 
 ```bash
-brew cask install visual-studio-code
+brew install --cask sequel-ace
+brew install --cask stoplight-studio
+brew install --cask visual-studio-code
 
 code --install-extension "EditorConfig.EditorConfig"
 code --install-extension "golang.go"
@@ -34,12 +36,12 @@ code --install-extension "redhat.vscode-yaml"
 
 - [New personal access token](https://github.com/settings/tokens/new?scopes=repo)
   にアクセスしてトークンを取得（Scopeはそのままで良い）
-- 下記のように `.netrc` を配置する
+- 下記のように `.netrc` を作成する
 
 ```bash
-echo "machine github.com" >> .netrc
-echo "    login ${取得したトークン}" >> .netrc
-echo "    password x-oauth-basic" >> .netrc
+machine github.com
+    login ${取得したトークン}
+    password x-oauth-basic
 ```
 
 [←Back](../README.md)

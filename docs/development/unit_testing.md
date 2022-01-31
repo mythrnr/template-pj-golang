@@ -11,7 +11,7 @@ make test
 - `pkg` に指定したディレクトリ配下が対象となる.
 
 ```bash
-make test pkg=internal/apps
+make test pkg=apps
 ```
 
 [←Back](../README.md)

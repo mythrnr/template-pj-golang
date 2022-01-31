@@ -14,7 +14,7 @@ indent_style = tab
 [*.md]
 trim_trailing_whitespace = false
 
-[*.{html,js,json,jsx,proto,scss,sh,sql,toml,ts,tsx,vue,xml,yaml,yml}]
+[*.{html,json,sh,sql,yaml}]
 indent_size = 2
 
 [Makefile]

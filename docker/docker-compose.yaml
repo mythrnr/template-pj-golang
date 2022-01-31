@@ -1,0 +1,143 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: "./app"
+      args:
+        HTTP_PROXY: "${HTTP_PROXY}"
+        HTTPS_PROXY: "${HTTPS_PROXY}"
+      target: "base"
+    command: "sh scripts/watch.sh"
+    image: "mythrnr/template-pj-golang:app-development"
+    depends_on:
+      - "database"
+      - "elasticsearch"
+      - "redis"
+    env_file:
+      - "./app/.env.local"
+    environment:
+      HTTP_PROXY: "${HTTP_PROXY}"
+      HTTPS_PROXY: "${HTTPS_PROXY}"
+      GO111MODULE: "on"
+      GOPROXY: "direct"
+      GOSUMDB: "off"
+    expose:
+      - 8080
+    logging: &logging
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      - "default"
+    restart: "no"
+    ulimits: &ulimits
+      nofile:
+        soft: 65535
+        hard: 65535
+    user: "golang"
+    volumes:
+      - type: "bind"
+        source: "../.netrc"
+        target: "/home/golang/.netrc"
+        read_only: true
+      - type: "bind"
+        source: ".."
+        target: "/go/src/github.com/mythrnr/template-pj-golang"
+        read_only: false
+      - type: "volume"
+        source: "v_go_pkg"
+        target: "/go/pkg"
+        read_only: false
+    working_dir: "/go/src/github.com/mythrnr/template-pj-golang"
+
+  database:
+    image: "mysql:5.7"
+    env_file: "./mysql/local.env"
+    expose:
+      - 3306
+    logging: *logging
+    networks:
+      - "default"
+    platform: "linux/amd64"
+    restart: "no"
+    user: "mysql"
+    volumes:
+      - type: "bind"
+        source: "./mysql/conf.d"
+        target: "/etc/mysql/conf.d"
+        read_only: true
+      - type: "bind"
+        source: "./mysql/docker-entrypoint-initdb.d"
+        target: "/docker-entrypoint-initdb.d"
+        read_only: true
+      - type: "volume"
+        source: "v_mysql_data"
+        target: "/var/lib/mysql"
+        read_only: false
+
+  elasticsearch:
+    build:
+      context: "./elasticsearch"
+      args:
+        HTTP_PROXY_HOST: "${HTTP_PROXY_HOST}"
+        HTTP_PROXY_PORT: "${HTTP_PROXY_PORT}"
+        HTTPS_PROXY_HOST: "${HTTPS_PROXY_HOST}"
+        HTTPS_PROXY_PORT: "${HTTPS_PROXY_PORT}"
+    image: "mythrnr/template-pj-golang:elasticsearch-development"
+    expose:
+      - 9200
+      - 9300
+    logging: *logging
+    networks:
+      - "default"
+    restart: "no"
+    user: "elasticsearch"
+    volumes:
+      - type: "volume"
+        source: "v_elasticsearch_data"
+        target: "/usr/share/elasticsearch/data"
+        read_only: false
+
+  redis:
+    image: "redis:6-alpine"
+    command: "redis-server"
+    expose:
+      - 6379
+    networks:
+      - "default"
+    restart: "no"
+
+  web:
+    build:
+      context: "./nginx"
+      dockerfile: "local.Dockerfile"
+      args:
+        COMMON_NAME: "localhost"
+    image: "mythrnr/template-pj-golang:web-development"
+    depends_on:
+      - "app"
+    logging: *logging
+    networks:
+      - "default"
+    restart: "no"
+    ulimits: *ulimits
+    volumes:
+      - type: "bind"
+        source: "./nginx/conf.d.local"
+        target: "/etc/nginx/conf.d"
+        read_only: true
+      - type: "bind"
+        source: "./nginx/certs"
+        target: "/etc/nginx/certs"
+        read_only: true
+      - type: "bind"
+        source: "./nginx/www/html"
+        target: "/var/www/html"
+        read_only: true
+
+volumes:
+  v_elasticsearch_data:
+  v_go_pkg:
+  v_mysql_data:

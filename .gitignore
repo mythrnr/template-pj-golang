@@ -1,8 +1,4 @@
-.DS_Store
-.env
-.netrc
-.realize.yaml
-.tmp
-.vscode/*
-!.vscode/settings.json
 *~
+.DS_Store
+.netrc
+.tmp

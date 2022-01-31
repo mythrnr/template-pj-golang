@@ -10,10 +10,10 @@
 | `fix/${what to fix}` | バグ修正用 |
 | `hotfix/${what to fix}` | 緊急の修正用 |
 
-```
+```bash
 master  --------------------------------------------->
-          ＼                                 ↗
-             ---> feature/update_api ---- PR
+            ＼                                 ↗
+                ---> feature/update_api ---- PR
                         ↘
 develop --------------------------------------------->
 ```

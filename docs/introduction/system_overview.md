@@ -2,7 +2,7 @@
 
 ## 01. アーキテクチャ概要
 
-- クリーンアーキテクチャとドメイン駆動設計に基づく実装
+- レイヤードアーキテクチャとドメイン駆動設計に基づく実装
 
 ![クラス図](./classes.png)
 
@@ -11,11 +11,11 @@
 ### Entities
 
 - 値オブジェクトの定義と業務知識を表現する.
-- 値オブジェクト, 集約オブジェクトパッケージ: `internal/apps/*/domain`
+- 値オブジェクト, 集約オブジェクトパッケージ: `domain`
 
 ## 03. Usecase 層
 
-- パッケージ: `internal/apps/*/usecase`
+- パッケージ: `usecase/*`
 
 ### Input Boundary
 
@@ -35,7 +35,7 @@
 ### Output Data
 
 - `Output Boundary` の処理のパラメータオブジェクトの定義.
-- 表示に必要なデータのみを渡すようにするため, この時点で各値は汎化しておく.
+- 出力に必要なデータのみを渡すようにするため, この時点で各値は汎化しておく.
 
 ### Use Case Interactor
 
@@ -51,23 +51,22 @@
 
 ### Controller
 
-- パッケージ: `internal/apps/http/handler`
+- パッケージ: `http/handler`
 - リクエストをユースケースの `Input Data` に変換し, 処理を呼び出す.
 
 ### Presenter
 
-- パッケージ: `internal/apps/http/presenter`
+- パッケージ: `http/presenter`
 - `Output Boundary` の実装.
 - ユースケースの処理結果をクライアントに表示する処理.
 
 ### View Model, View
 
-- パッケージ: `internal/apps/http/view`
-- HTML の配置場所: `internal/apps/http/view/html`
+- REST API の為, 現時点では実装なし.
 
 ### Data Access, Database
 
-- パッケージ: `internal/apps/*/repository`
+- パッケージ: `repository/*`
 - `Data Access Interface` の実装.
 - データベースや外部 API へアクセスし, 読み取り, 書き出しを担う.
 

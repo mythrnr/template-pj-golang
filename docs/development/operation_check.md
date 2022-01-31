@@ -6,18 +6,15 @@
 make serve
 ```
 
-## 02. 開発環境の証明書有効化
+## 02. API の確認
+
+- API: https://localhost/ping
+- API Doc: https://localhost/openapi
+
+## Ex. 開発環境の証明書有効化
 
 - 開発環境は SSL 接続だが, 証明書が無効な為ブラウザでエラーを手動で回避しなければならない.  
-証明書を自分で信頼させることでこれを回避可能
-
-### Docker コンテナ内から証明書をコピーする方法
-
-```bash
-cd deployments
-
-docker-compose up
-docker cp mythrnr-template-pj-golang_web_1:/etc/nginx/template-pj-golang.crt ${任意の場所}
-```
+  証明書を自分で信頼させることでこれを回避可能
+- Mac の場合, `docker/nginx/certs/server.crt` を Keychain で信頼することで回避可能.
 
 [←Back](../README.md)

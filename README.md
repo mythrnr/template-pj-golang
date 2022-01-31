@@ -1,14 +1,12 @@
-# template-pj-golang
-
-- The template project files based on Standard Go Project Layout.
+# mythrnr/template-pj-golang
 
 ## Status
 
-[![Check codes](https://github.com/mythrnr/template-pj-golang/actions/workflows/check_code.yml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/check_code.yml)
+[![Check codes](https://github.com/mythrnr/template-pj-golang/actions/workflows/check_code.yaml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/check_code.yaml)
 
-[![Create Release](https://github.com/mythrnr/template-pj-golang/actions/workflows/release.yml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/release.yml)
+[![Create Release](https://github.com/mythrnr/template-pj-golang/actions/workflows/release.yaml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/release.yaml)
 
-[![Deploy Application](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy_app.yml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy_app.yml)
+[![Deploy Application](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy_app.yaml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy_app.yaml)
 
 ## Documents
 
