@@ -3,50 +3,94 @@
 #
 FROM golang:1.17 as base
 
+ARG GOLANGCI_LINT_VERSION=""
+ARG GOLANGCI_LINT_INSTALL_SHELL="https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh"
+ARG MOCKERY_VERSION="2.9.4"
+ARG MOCKERY_BIN_URL_PREFIX="https://github.com/vektra/mockery/releases/download/v${MOCKERY_VERSION}"
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
-ARG GOLANGCI_LINT_URL="https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh"
+ARG INOTIFY_VERSION="3.22.1.0"
 ARG WORK_DIR="/go"
+
 ENV GO111MODULE="on"
 
 WORKDIR ${WORK_DIR}
 
 RUN set -x \
-    && apk update \
-    && apk upgrade \
-    && apk add --no-cache \
-        g++ \
-        gcc \
-        git \
-        make \
-        openssh \
-        shadow \
-        socat \
-        upx \
-        wget \
-    && addgroup -S golang \
-    && adduser -D -S \
-        -h /home/golang \
-        -s /sbin/nologin \
-        -G golang golang \
+    && apt update \
+    && apt upgrade \
+    && apt install -y autoconf jq libtool socat upx \
+    && cd /tmp \
+    && curl -OL https://github.com/inotify-tools/inotify-tools/archive/refs/tags/${INOTIFY_VERSION}.tar.gz \
+    && tar xzvf /tmp/${INOTIFY_VERSION}.tar.gz \
+    && cd inotify-tools-${INOTIFY_VERSION} \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr --libdir=/lib64 \
+    && make \
+    && make install \
+    && addgroup golang \
+    && adduser \
+        --home /home/golang \
+        --ingroup golang golang \
+    && echo "alias ll='ls -ahl'" >> /home/golang/.profile \
+    && chown -R golang:golang /home/golang \
+    && rm -rf \
+        /var/cache/apt/* \
+        /tmp/*
+
+RUN set -x \
     && mkdir -p \
         ${WORK_DIR}/bin \
         ${WORK_DIR}/pkg \
         ${WORK_DIR}/src \
-    && wget -O- -nv \
-        ${GOLANGCI_LINT_INSTALL_SHELL} \
-        | sh -s ${GOLANGCI_LINT_VERSION} \
-    && go install \
-        github.com/golang/mock/mockgen@latest \
-    && go install \
-        golang.org/x/tools/cmd/godoc@latest \
-    && go get -v -u \
-        github.com/vektra/mockery/v2/.../ \
-    && GO111MODULE="off" go get -v \
-        github.com/oxequa/realize \
-    && chown -R golang:golang ${WORK_DIR} \
+    && cd /tmp \
+    #
+    # Install Mockery
+    #
+    && if [ `uname -m` = "x86_64" ]; then \
+            export MOCKERY_BIN_URL="${MOCKERY_BIN_URL_PREFIX}/mockery_${MOCKERY_VERSION}_Linux_x86_64.tar.gz"; \
+            export MOCKERY_BIN_FILE="mockery_${MOCKERY_VERSION}_Linux_x86_64"; \
+        else \
+            export MOCKERY_BIN_URL="${MOCKERY_BIN_URL_PREFIX}/mockery_${MOCKERY_VERSION}_Linux_arm64.tar.gz"; \
+            export MOCKERY_BIN_FILE="mockery_${MOCKERY_VERSION}_Linux_arm64"; \
+        fi \
+    && if [ "x" != "x${HTTPS_PROXY}" ]; then \
+            curl -x ${HTTPS_PROXY} -o ${MOCKERY_BIN_FILE}.tar.gz -L ${MOCKERY_BIN_URL}; \
+        else \
+            curl -o ${MOCKERY_BIN_FILE}.tar.gz -L ${MOCKERY_BIN_URL}; \
+        fi \
+    && tar -zxvf ${MOCKERY_BIN_FILE}.tar.gz \
+    && ls -al \
+    && mv ./mockery $(go env GOPATH)/bin/mockery \
+    && chmod +x $(go env GOPATH)/bin/mockery \
+    #
+    # Install golangci-lint
+    #
+    && if [ "x" != "x${HTTPS_PROXY}" ]; then \
+            curl -x ${HTTPS_PROXY} -L ${GOLANGCI_LINT_INSTALL_SHELL} \
+            | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}; \
+        else \
+            curl -L ${GOLANGCI_LINT_INSTALL_SHELL} \
+            | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}; \
+        fi \
+    #
+    # Install go tools
+    #
+    && go install github.com/cweill/gotests/gotests@latest \
+    && go install github.com/fatih/gomodifytags@latest \
+    && go install github.com/go-delve/delve/cmd/dlv@latest \
+    && go install github.com/golang/mock/mockgen@latest \
+    && go install github.com/haya14busa/goplay/cmd/goplay@latest \
+    && go install github.com/josharian/impl@latest \
+    && go install github.com/ramya-rao-a/go-outline@latest \
+    && go install github.com/uudashr/gopkgs/v2/cmd/gopkgs@latest \
+    && go install golang.org/x/tools/cmd/godoc@latest \
+    && go install golang.org/x/tools/cmd/goimports@latest \
+    && go install golang.org/x/tools/gopls@latest \
+    && chown -R golang:golang ${WORK_DIR} /home/golang \
     && rm -rf \
-        /var/cache/apk/* \
+        /tmp/* \
+        /var/cache/apt/* \
         ${WORK_DIR}/pkg/* \
         ${WORK_DIR}/src/*
 
@@ -86,79 +130,16 @@ RUN : "${GITHUB_TOKEN:?GITHUB_TOKEN is required.}" \
     && sh scripts/build.sh
 
 #
-# Prepare image to execute.
+# Build image for Application.
 #
-FROM alpine as executer
-
-ARG HTTP_PROXY
-ARG HTTPS_PROXY
-ARG WORK_DIR="/tmp"
-ARG ZONEINFO_FILE_LOCATION="/usr/local/go/lib/time/zoneinfo.zip"
-ARG ZONEINFO_FILE_URL="https://github.com/golang/go/raw/master/lib/time/zoneinfo.zip"
-
-WORKDIR ${WORK_DIR}
-
-RUN set -x \
-    && apk update \
-    && apk upgrade \
-    && apk add --no-cache \
-        ca-certificates \
-        curl \
-    && addgroup -S golang \
-    && adduser -D -S \
-        -h /home/golang \
-        -s /sbin/nologin \
-        -G golang golang \
-    && mkdir -p /usr/local/go/lib/time \
-    && if [ "x" != "x${HTTPS_PROXY}" ]; then \
-        curl -x ${HTTPS_PROXY} \
-            -L -o ${ZONEINFO_FILE_LOCATION} \
-            ${ZONEINFO_FILE_URL}; \
-    else \
-        curl -L -o ${ZONEINFO_FILE_LOCATION} \
-            ${ZONEINFO_FILE_URL}; \
-    fi \
-    && apk del curl \
-    && rm -f /var/cache/apk/* \
-    && chown -R golang:golang ${WORK_DIR} \
-    && chmod -R 700 ${WORK_DIR}
-
-USER golang
-
-#
-# Build image for HTTP server.
-#
-FROM executer as app
-
-ARG WORK_DIR="/home/golang"
-
-WORKDIR ${WORK_DIR}
+FROM gcr.io/distroless/base
 
 USER root
 
-COPY --from=builder --chown=golang:golang \
-    /go/src/github.com/mythrnr/template-pj-golang/bin/http/api \
-    ${WORK_DIR}/bin/api
+COPY --from=builder --chown=nonroot:nonroot \
+    /go/src/github.com/mythrnr/template-pj-golang/bin/app \
+    /app
 
-USER golang
+USER nonroot
 
-CMD [ "./bin/api" ]
-
-#
-# Build image for CLI app.
-#
-FROM executer as cli
-
-ARG WORK_DIR="/home/golang"
-
-WORKDIR ${WORK_DIR}
-
-USER root
-
-COPY --from=builder --chown=golang:golang \
-    /go/src/github.com/mythrnr/template-pj-golang/bin/cli/cli \
-    ${WORK_DIR}/bin/cli
-
-USER golang
-
-CMD [ "./bin/cli" ]
+CMD [ "/app", "serve" ]

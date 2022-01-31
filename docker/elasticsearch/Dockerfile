@@ -1,4 +1,4 @@
-FROM elasticsearch:6.7.2
+FROM elasticsearch:7.16.3
 
 ARG HTTP_PROXY_HOST
 ARG HTTP_PROXY_PORT

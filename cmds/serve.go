@@ -3,7 +3,6 @@ package cmds
 import (
 	"os"
 
-	"github.com/mythrnr/template-pj-golang/builder"
 	"github.com/mythrnr/template-pj-golang/config"
 	"github.com/mythrnr/template-pj-golang/http"
 	"github.com/mythrnr/template-pj-golang/migration"
@@ -18,22 +17,17 @@ var ServeCommand = &cli.Command{
 			return err
 		}
 
-		if c.App.LogLevel == "debug" {
+		if c.App.LogLevel == config.LogLevelDebug {
 			os.Stdout.WriteString(c.Dump())
 		}
 
-		d, err := builder.Resolve(c)
-		if err != nil {
-			return err
-		}
-
-		if c.App.Env == "local" {
+		if c.App.Env == config.EnvLocal {
 			if err := migration.Up(getMigrationDatabaseURL()); err != nil {
 				return err
 			}
 		}
 
-		server := http.NewServer(d)
+		server := http.NewServer(c)
 		server.Start()
 
 		return nil
