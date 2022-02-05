@@ -8,17 +8,6 @@ import (
 	"github.com/mythrnr/template-pj-golang/config"
 )
 
-const bannerFmt = `
-#########################################
-#
-# Server Start.
-#
-# port:    %d
-# version: %s
-#
-#########################################
-`
-
 type Server struct {
 	c *config.Config
 }
