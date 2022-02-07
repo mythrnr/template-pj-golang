@@ -18,13 +18,13 @@ if [ "x" != "x${1}" ]; then
   package="${tmp#/}"
 fi
 
-if [ "x" != "x${package}" ]; then
-  go list ./${package}/... | grep -v mocks | grep -v integrate > go.list
-else
-  go list ./... | grep -v mocks | grep -v integrate > go.list
-fi
+go list ./... | grep -v mocks | grep -v integrate > go.list
 
 target=`cat go.list`
+if [ "x" != "x${package}" ]; then
+  target=`cat go.list | grep ${package}`
+fi
+
 rm -rf go.list
 
 for d in ${target}; do
