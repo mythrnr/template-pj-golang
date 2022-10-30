@@ -7,7 +7,7 @@
     "../docker/docker-compose.override.yaml"
   ],
   "extensions": [
-    "golang.go",
+    "golang.go"
   ],
   "name": "develop",
   "service": "app",
@@ -22,7 +22,7 @@
       "files.trimTrailingWhitespace": false
     },
     "[yaml]": {
-      "editor.defaultFormatter": "redhat.vscode-yaml",
+      "editor.defaultFormatter": "redhat.vscode-yaml"
     },
     "editor.formatOnSave": true,
     "editor.insertSpaces": false,

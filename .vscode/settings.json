@@ -1,11 +1,6 @@
 // NOTE: .devcontainer/devcontainer.json の settings にも同じものを書く
 {
-  "[json][jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features",
-    "editor.tabSize": 2
-  },
   "[markdown]": {
-    "editor.defaultFormatter": "mrmlnc.vscode-remark",
     "editor.formatOnSave": false,
     "files.trimTrailingWhitespace": false
   },

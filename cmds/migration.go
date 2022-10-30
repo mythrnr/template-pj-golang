@@ -3,10 +3,10 @@ package cmds
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"os"
-	"strings"
+	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/mythrnr/template-pj-golang/migration"
 	"github.com/urfave/cli/v2"
 )
@@ -48,21 +48,20 @@ var MigrationCommand = &cli.Command{
 }
 
 func getMigrationDatabaseURL() string {
-	host := os.Getenv("DATABASE_MYSQL_MIGRATE_HOST")
-	port := os.Getenv("DATABASE_MYSQL_MIGRATE_PORT")
-	database := os.Getenv("DATABASE_MYSQL_MIGRATE_DBNAME")
-	username := os.Getenv("DATABASE_MYSQL_MIGRATE_USER")
-	password := os.Getenv("DATABASE_MYSQL_MIGRATE_PASSWORD")
+	c := mysql.Config{
+		DBName: os.Getenv("DATABASE_MYSQL_MIGRATE_DBNAME"),
+		User:   os.Getenv("DATABASE_MYSQL_MIGRATE_USER"),
+		Passwd: os.Getenv("DATABASE_MYSQL_MIGRATE_PASSWORD"),
+		Addr: fmt.Sprintf(
+			"%s:%s",
+			os.Getenv("DATABASE_MYSQL_MIGRATE_HOST"),
+			os.Getenv("DATABASE_MYSQL_MIGRATE_PORT"),
+		),
+		Net:       "tcp",
+		ParseTime: true,
+		Collation: "utf8mb4",
+		Loc:       time.UTC,
+	}
 
-	return fmt.Sprintf(
-		"mysql://%s:%s@tcp(%s:%s)/%s",
-		strings.TrimSpace(username),
-		strings.TrimSpace(password),
-		strings.TrimSpace(host),
-		strings.TrimSpace(port),
-		strings.TrimSpace(database),
-	) + "?" + url.Values{
-		"charset": []string{"utf8mb4"},
-		"loc":     []string{"UTC"},
-	}.Encode()
+	return c.FormatDSN()
 }

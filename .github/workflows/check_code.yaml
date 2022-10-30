@@ -20,18 +20,18 @@ env:
   SLACK_USERNAME: "GitHub Actions"
 
 jobs:
-  golangci:
-    name: "golangci-lint"
+  golangci-lint:
+    name: "Check coding style"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
 
       - name: "Put .netrc"
         uses: "./.github/actions/put-netrc"
         with:
           secret-token: "${{ secrets.SECRET_TOKEN }}"
 
-      - uses: "golangci/golangci-lint-action@v2"
+      - uses: "golangci/golangci-lint-action@v3"
         with:
           version: "latest"
 
@@ -39,21 +39,37 @@ jobs:
     name: "Scan Vulnerabilities"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
 
       - name: "Put .netrc"
         uses: "./.github/actions/put-netrc"
         with:
           secret-token: "${{ secrets.SECRET_TOKEN }}"
 
-      - uses: "actions/setup-go@v2"
+      - uses: "actions/setup-go@v3"
         with:
-          go-version: "1.17"
+          go-version: "1.19"
 
       - name: "Write go.list file"
         run: "go list -json -m all > go.list"
 
       - uses: "sonatype-nexus-community/nancy-github-action@main"
+
+  spell-check:
+    name: "Check spell"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v3"
+
+      - uses: "actions/setup-node@v3"
+        with:
+          node-version: "16.x"
+
+      - name: "Install cSpell"
+        run: "npm install -g cspell"
+
+      - name: "Run spell check"
+        run: "make spell-check"
 
   testing:
     name: "Unit Test"
@@ -67,7 +83,7 @@ jobs:
           sudo sysctl -w fs.file-max=262144
           sudo sysctl -w vm.max_map_count=262144
 
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
 
       - name: "Put .netrc"
         uses: "./.github/actions/put-netrc"
@@ -75,12 +91,12 @@ jobs:
           location: ".netrc"
           secret-token: "${{ secrets.SECRET_TOKEN }}"
 
-      - uses: "actions/setup-go@v2"
+      - uses: "actions/setup-go@v3"
         with:
-          go-version: "1.17"
+          go-version: "1.19"
 
       - name: "Login Dockerhub"
-        uses: "docker/login-action@v1"
+        uses: "docker/login-action@v2"
         with:
           username: "${{ secrets.DOCKERHUB_USERNAME }}"
           password: "${{ secrets.DOCKERHUB_TOKEN }}"
@@ -93,7 +109,7 @@ jobs:
           echo "GO_PKGDIR=$GOMODCACHE" >> $GITHUB_ENV
 
       - name: "Cache GOMODCACHE directory"
-        uses: "actions/cache@v2"
+        uses: "actions/cache@v3"
         # use this to check for `cache-hit`
         # `steps.gomodcache.outputs.cache-hit != 'true'`
         id: "gomodcache"
@@ -125,7 +141,7 @@ jobs:
 
       - name: "Annotate tests"
         if: "always()"
-        uses: "guyarb/golang-test-annotations@v0.4.0"
+        uses: "guyarb/golang-test-annotations@v0.6.0"
         with:
           test-results: "result.json"
 
@@ -133,9 +149,11 @@ jobs:
     name: "Slack Notification on success"
     runs-on: "ubuntu-latest"
     needs:
-      - "golangci"
+      - "golangci-lint"
       - "scan_vulnerabilities"
+      - "spell-check"
       - "testing"
+
     env:
       SLACK_WEBHOOK: |
         ${{ secrets[fromJSON('[
@@ -181,10 +199,12 @@ jobs:
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
     needs:
-      - "golangci"
-      - "scan_vulnerabilities"
-      - "testing"
+      - "golangci-lint"
       - "notify"
+      - "scan_vulnerabilities"
+      - "spell-check"
+      - "testing"
+
     env:
       SLACK_WEBHOOK: |
         ${{ secrets[fromJSON('[

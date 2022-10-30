@@ -37,9 +37,9 @@ jobs:
 
       - id: "setenv"
         run: |
-          echo "::set-output name=APP_VERSION::${{ env.APP_VERSION }}"
-          echo "::set-output name=RELEASE_BRANCH::${{ env.RELEASE_BRANCH }}"
-          echo "::set-output name=RELEASE_ENV::${{ env.RELEASE_ENV }}"
+          echo "APP_VERSION=${{ env.APP_VERSION }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_BRANCH=${{ env.RELEASE_BRANCH }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ENV=${{ env.RELEASE_ENV }}" >> $GITHUB_OUTPUT
 
   create_release:
     runs-on: "ubuntu-latest"
@@ -50,10 +50,12 @@ jobs:
       RELEASE_BRANCH: "${{ needs.env.outputs.RELEASE_BRANCH }}"
       RELEASE_ENV: "${{ needs.env.outputs.RELEASE_ENV }}"
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: "actions/checkout@v3"
+        with:
+          fetch-depth: 0
 
       - name: "Login Dockerhub"
-        uses: "docker/login-action@v1"
+        uses: "docker/login-action@v2"
         with:
           username: "${{ secrets.DOCKERHUB_USERNAME }}"
           password: "${{ secrets.DOCKERHUB_TOKEN }}"
@@ -78,12 +80,12 @@ jobs:
           git fetch origin --tags
 
           RECENT_TAG=$(git tag \
-            --no-contains=$GITHUB_SHA \
-            --sort="version:refname" \
-            | tail -1)
+            --no-contains=${{ env.APP_VERSION }} \
+            --sort=authordate | tail -1)
 
           git log $RECENT_TAG..${{ env.APP_VERSION }} \
-            --pretty=format:"- %h : %s (by @%an)" >> note.txt
+            --format='### %h : %s (by @%an)%n```%n%b```%n' \
+            | sed -e :loop -e 'N; $!b loop' -e 's/```\n```//g' >> note.txt
 
       - name: "Create release"
         run: |
@@ -117,7 +119,7 @@ jobs:
           echo $result
           ID=$(echo $result | jq '.workflows[] | select(.path | contains("deploy_app")) | .id')
 
-          echo "::set-output name=WORKFLOW_ID::$ID"
+          echo "WORKFLOW_ID=$ID" >> $GITHUB_OUTPUT
 
       - name: "Notify"
         uses: "8398a7/action-slack@v3"

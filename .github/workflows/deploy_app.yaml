@@ -12,9 +12,9 @@ on:
           - "production"
         required: true
       version:
-        default: ""
         description: "Version to deploy"
         required: true
+        default: ""
 
 env:
   SLACK_COLOR_FAILED: "#a92d2e"
@@ -25,9 +25,6 @@ env:
 jobs:
   deploy:
     runs-on: "ubuntu-latest"
-    needs:
-      - "env"
-
     steps:
       - run: echo "run commands to release"
 

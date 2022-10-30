@@ -37,30 +37,43 @@ linters-settings:
     max-decl-lines: 1
     max-decl-chars: 60
   lll:
-    line-length: 80
+    line-length: 100
     tab-width: 4
   makezero:
     always: true
   misspell:
     locale: "US"
     ignore-words:
-      - "someword"
+      - "some_word"
   nestif:
     min-complexity: 4
   staticcheck:
-    go: "1.17"
+    go: "1.19"
   testpackage:
     skip-regexp: "_inner_test.go"
 
 linters:
   disable:
+    - "exhaustivestruct"
     - "gochecknoglobals"
+    - "gofumpt"
+    - "ireturn"
     - "tagliatelle"
+    - "varnamelen"
+    - "wrapcheck"
     # ---- deprecated ---- #
+    - "deadcode"
     - "golint"
+    - "ifshort"
     - "interfacer"
     - "maligned"
+    - "nosnakecase"
+    - "rowserrcheck"
     - "scopelint"
+    - "sqlclosecheck"
+    - "structcheck"
+    - "varcheck"
+    - "wastedassign"
     # -------------------- #
   presets:
     - "bugs"

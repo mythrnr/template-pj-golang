@@ -1,0 +1,11 @@
+{
+  "caseSensitive": false,
+  "dictionaries": [
+    "bash",
+    "docker",
+    "golang"
+  ],
+  "language": "en",
+  "minWordLength": 4,
+  "words": []
+}

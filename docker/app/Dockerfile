@@ -1,7 +1,7 @@
 #
 # Prepare image to develop.
 #
-FROM golang:1.17 as base
+FROM golang:1.19 as base
 
 ARG GOLANGCI_LINT_VERSION=""
 ARG GOLANGCI_LINT_INSTALL_SHELL="https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh"
@@ -17,9 +17,9 @@ ENV GO111MODULE="on"
 WORKDIR ${WORK_DIR}
 
 RUN set -x \
-    && apt update \
-    && apt upgrade \
-    && apt install -y autoconf jq libtool socat upx \
+    && apt-get update \
+    && apt-get upgrade \
+    && apt-get install -y autoconf jq libtool socat upx \
     && cd /tmp \
     && curl -OL https://github.com/inotify-tools/inotify-tools/archive/refs/tags/${INOTIFY_VERSION}.tar.gz \
     && tar xzvf /tmp/${INOTIFY_VERSION}.tar.gz \

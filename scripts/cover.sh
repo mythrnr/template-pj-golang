@@ -85,6 +85,6 @@ rm -f $tmp_filename
 
 # replace contents.
 content="<div id=\"content\"><style>a{color: white;}</style><ul>${pkglinks}</ul>"
-sed -i "" "s|<div id=\"content\">|$content|" "$doc_dir/index.html"
+sed -i "s|<div id=\"content\">|$content|" "$doc_dir/index.html"
 
 exit $sts

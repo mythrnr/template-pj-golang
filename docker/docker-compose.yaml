@@ -54,14 +54,13 @@ services:
     working_dir: "/go/src/github.com/mythrnr/template-pj-golang"
 
   database:
-    image: "mysql:5.7"
+    image: "mariadb:10.3"
     env_file: "./mysql/local.env"
     expose:
       - 3306
     logging: *logging
     networks:
       - "default"
-    platform: "linux/amd64"
     restart: "no"
     user: "mysql"
     volumes:

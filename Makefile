@@ -1,3 +1,7 @@
+ifndef VERBOSE
+MAKEFLAGS += --silent
+endif
+
 command = help
 compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
@@ -7,7 +11,6 @@ release ?= testing
 version ?= edge
 
 .PHONY: build
-.SILENT: build
 build:
 	cd docker \
 	&& \
@@ -17,7 +20,6 @@ build:
 		build --parallel --pull $(compose_opts)
 
 .PHONY: build-container
-.SILENT: build-container
 build-container:
 	cd docker \
 	&& \
@@ -32,7 +34,6 @@ build-container:
 		-t mythrnr/template-pj-golang:mkcert-development .
 
 .PHONY: certs
-.SILENT: certs
 certs:
 	docker run --rm \
 		--volume=$(shell pwd):/workdir \
@@ -41,12 +42,10 @@ certs:
 		mythrnr/template-pj-golang:mkcert-development
 
 .PHONY: clean
-.SILENT: clean
 clean:
 	rm -rf .tmp .netrc docker/app/.env docs/unit_tests
 
 .PHONY: cli
-.SILENT: cli
 cli:
 	cd docker \
 	&& \
@@ -57,7 +56,6 @@ cli:
 		run --rm app go run main.go -- $(command)
 
 .PHONY: cover
-.SILENT: cover
 cover:
 	cd docker \
 	&& \
@@ -68,7 +66,6 @@ cover:
 		run --rm app sh scripts/cover.sh
 
 .PHONY: deploy
-.SILENT: deploy
 deploy:
 	REF="master" \
 	&& : "$${GITHUB_TOKEN?:GITHUB_TOKEN is required.}" \
@@ -81,7 +78,6 @@ deploy:
 		-d "{ \"ref\": \"$${REF}\", \"inputs\": { \"env\": \"$(release)\", \"version\": \"$(version)\" } }"
 
 .PHONY: down
-.SILENT: down
 down:
 	cd docker \
 	&& \
@@ -91,7 +87,6 @@ down:
 		-f docker-compose.$(overridefile).yaml down
 
 .PHONY: fmt
-.SILENT: fmt
 fmt:
 	cd docker \
 	&& \
@@ -102,7 +97,6 @@ fmt:
 		run --no-deps app go fmt ./...
 
 .PHONY: godoc
-.SILENT: godoc
 godoc:
 	cd docker \
 	&& \
@@ -110,7 +104,6 @@ godoc:
 	docker-compose up docs godoc
 
 .PHONY: integrate
-.SILENT: integrate
 integrate:
 	cd docker \
 	&& \
@@ -121,7 +114,6 @@ integrate:
 		run --rm app sh scripts/integrate.sh $(pkg)
 
 .PHONY: lint
-.SILENT: lint
 lint:
 	cd docker \
 	&& \
@@ -131,13 +123,39 @@ lint:
 		-f docker-compose.$(overridefile).yaml \
 		run --rm --no-deps app golangci-lint run $(pkg)/...
 
+name =
+
+.PHONY: migrate
+migrate:
+	@if [ "$(name)" = "" ]; then \
+		echo "Migration name is not set."; \
+		echo "Exec 'make migrate name={your migration filename}'"; \
+		exit 1; \
+	fi
+
+	cd docker \
+	&& docker-compose run --rm --no-deps app \
+		migrate create -ext sql -dir migration/sql $(name) \
+
+.PHONY: migrate-exec
+migrate-exec:
+	cd docker \
+	&& docker-compose exec app .tmp/app migrate up
+
+.PHONY: migrate-rollback
+migrate-rollback:
+	cd docker \
+	&& docker-compose exec app .tmp/app migrate down 1
+
 .PHONY: mock
-.SILENT: mock
 mock:
 	sh scripts/genmock.sh $(pkg)
 
+.PHONY: nancy
+nancy:
+	go list -json -m all | nancy sleuth
+
 .PHONY: pull
-.SILENT: pull
 pull:
 	cd docker \
 	&& \
@@ -147,7 +165,6 @@ pull:
 		-f docker-compose.$(overridefile).yaml pull
 
 .PHONY: push
-.SILENT: push
 push:
 	cd docker \
 	&& \
@@ -156,7 +173,6 @@ push:
 		-f docker-compose.build.yaml push
 
 .PHONY: serve
-.SILENT: serve
 serve:
 	cd docker \
 	&& \
@@ -166,8 +182,16 @@ serve:
 		-f docker-compose.$(overridefile).yaml \
 		up $(compose_opts)
 
+.PHONY: spell-check
+spell-check:
+	# npm install -g cspell@latest
+	cspell lint --config .vscode/cspell.json ".*"; \
+	cspell lint --config .vscode/cspell.json "**/.*"; \
+	cspell lint --config .vscode/cspell.json ".{github,vscode}/**/*"; \
+	cspell lint --config .vscode/cspell.json ".{github,vscode}/**/.*"; \
+	cspell lint --config .vscode/cspell.json "**"
+
 .PHONY: test
-.SILENT: test
 test:
 	cd docker \
 	&& \
@@ -178,7 +202,6 @@ test:
 		run --rm app sh scripts/test.sh $(pkg)
 
 .PHONY: test-json
-.SILENT: test-json
 test-json:
 	cd docker \
 	&& \
@@ -189,7 +212,6 @@ test-json:
 		run --rm app sh scripts/test.sh . -json
 
 .PHONY: tidy
-.SILENT: tidy
 tidy:
 	cd docker \
 	&& \
@@ -197,4 +219,4 @@ tidy:
 	docker-compose \
 		-f docker-compose.yaml \
 		-f docker-compose.$(overridefile).yaml \
-		run --no-deps app go mod tidy
+		run --rm --no-deps app go mod tidy
