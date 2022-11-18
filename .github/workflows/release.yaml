@@ -13,8 +13,9 @@ env:
 
 jobs:
   env:
-    name: "set env"
+    name: "Set env"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     outputs:
       APP_VERSION: "${{ steps.setenv.outputs.APP_VERSION }}"
       RELEASE_BRANCH: "${{ steps.setenv.outputs.RELEASE_BRANCH }}"
@@ -41,8 +42,10 @@ jobs:
           echo "RELEASE_BRANCH=${{ env.RELEASE_BRANCH }}" >> $GITHUB_OUTPUT
           echo "RELEASE_ENV=${{ env.RELEASE_ENV }}" >> $GITHUB_OUTPUT
 
-  create_release:
+  create-release:
+    name: "Create Release"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 10
     needs:
       - "env"
     env:
@@ -98,9 +101,10 @@ jobs:
   notify:
     name: "Slack Notification on success"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     needs:
       - "env"
-      - "create_release"
+      - "create-release"
     env:
       APP_VERSION: "${{ needs.env.outputs.APP_VERSION }}"
       RELEASE_BRANCH: "${{ needs.env.outputs.RELEASE_BRANCH }}"
@@ -117,7 +121,7 @@ jobs:
         run: |
           result=$(curl -sL https://${{ secrets.SECRET_TOKEN }}@api.github.com/repos/${{ github.repository }}/actions/workflows)
           echo $result
-          ID=$(echo $result | jq '.workflows[] | select(.path | contains("deploy_app")) | .id')
+          ID=$(echo $result | jq '.workflows[] | select(.path | contains("deploy-app")) | .id')
 
           echo "WORKFLOW_ID=$ID" >> $GITHUB_OUTPUT
 
@@ -165,13 +169,14 @@ jobs:
               }]
             }
 
-  notify_failure:
+  notify-failure:
     if: "failure()"
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     needs:
       - "env"
-      - "create_release"
+      - "create-release"
       - "notify"
     env:
       SLACK_WEBHOOK: |

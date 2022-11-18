@@ -6,7 +6,7 @@
 
 [![Create Release](https://github.com/mythrnr/template-pj-golang/actions/workflows/release.yaml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/release.yaml)
 
-[![Deploy Application](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy_app.yaml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy_app.yaml)
+[![Deploy Application](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy-app.yaml/badge.svg)](https://github.com/mythrnr/template-pj-golang/actions/workflows/deploy-app.yaml)
 
 ## Documents
 

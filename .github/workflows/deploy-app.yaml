@@ -24,15 +24,19 @@ env:
 
 jobs:
   deploy:
+    name: "Deploy Application"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 10
     steps:
       - run: echo "run commands to release"
 
   notify:
     name: "Slack Notification on success"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     needs:
       - "deploy"
+
     env:
       SLACK_WEBHOOK: |
         ${{ secrets[fromJSON('[
@@ -74,14 +78,16 @@ jobs:
               }]
             }
 
-  notify_failure:
+  notify-failure:
     if: "failure()"
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     needs:
       - "env"
       - "deploy"
       - "notify"
+
     env:
       SLACK_WEBHOOK: |
         ${{ secrets[fromJSON('[

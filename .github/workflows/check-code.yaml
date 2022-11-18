@@ -23,6 +23,7 @@ jobs:
   golangci-lint:
     name: "Check coding style"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     steps:
       - uses: "actions/checkout@v3"
 
@@ -35,9 +36,10 @@ jobs:
         with:
           version: "latest"
 
-  scan_vulnerabilities:
+  scan-vulnerabilities:
     name: "Scan Vulnerabilities"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     steps:
       - uses: "actions/checkout@v3"
 
@@ -58,6 +60,7 @@ jobs:
   spell-check:
     name: "Check spell"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     steps:
       - uses: "actions/checkout@v3"
 
@@ -74,7 +77,7 @@ jobs:
   testing:
     name: "Unit Test"
     runs-on: "ubuntu-latest"
-
+    timeout-minutes: 10
     steps:
       - name: "Configure sysctl limits for Elasticsearch"
         run: |
@@ -148,9 +151,10 @@ jobs:
   notify:
     name: "Slack Notification on success"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     needs:
       - "golangci-lint"
-      - "scan_vulnerabilities"
+      - "scan-vulnerabilities"
       - "spell-check"
       - "testing"
 
@@ -194,14 +198,15 @@ jobs:
               }]
             }
 
-  notify_failure:
+  notify-failure:
     if: "failure()"
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 5
     needs:
       - "golangci-lint"
       - "notify"
-      - "scan_vulnerabilities"
+      - "scan-vulnerabilities"
       - "spell-check"
       - "testing"
 
