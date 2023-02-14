@@ -32,7 +32,7 @@ linters-settings:
   gomnd:
     settings:
       mnd:
-        ignored-functions: "strconv.FormatInt,strconv.ParseFloat,strconv.ParseInt,strconv.ParseUint"
+        ignored-functions: "strconv.FormatInt,strconv.FormatUint,strconv.ParseFloat,strconv.ParseInt,strconv.ParseUint"
   ifshort:
     max-decl-lines: 1
     max-decl-chars: 60
@@ -54,10 +54,14 @@ linters-settings:
 
 linters:
   disable:
+    - "exhaustive"
     - "exhaustivestruct"
+    - "exhaustruct"
+    - "gci"
     - "gochecknoglobals"
     - "gofumpt"
     - "ireturn"
+    - "nilnil"
     - "tagliatelle"
     - "varnamelen"
     - "wrapcheck"
@@ -89,9 +93,21 @@ issues:
     # Exclude some linters from running on tests files.
     - path: "_test.go"
       linters:
+        - "bodyclose"
         - "dupl"
         - "errcheck"
         - "funlen"
-    - path: "config"
+        - "gocognit"
+        - "goconst"
+        - "goerr113"
+        - "gosec"
+        - "lll"
+        - "maintidx"
+        - "tenv"
+    - path: "config/.*_test\\.go"
       linters:
-        - "funlen"
+        - "paralleltest"
+        - "tparallel"
+    - path: "integrate/.*_test\\.go"
+      linters:
+        - "paralleltest"

@@ -1,9 +1,10 @@
-version: "3.8"
-
 # Github Actions用
+x-service: &service
+  user: "root"
+
 services:
   app:
-    user: "root"
+    <<: *service
     volumes:
       - type: "bind"
         source: "../.netrc"
@@ -14,8 +15,4 @@ services:
         target: "/go/pkg"
         read_only: false
 
-  database:
-    user: "root"
-
-  elasticsearch:
-    user: "root"
+  database: *service

@@ -6,6 +6,9 @@ import (
 )
 
 func (c *Config) bindLang() error {
+	c.Lang.Fallback = ts(c.Lang.Fallback)
+	c.Lang.HTTPHeaderName = ts(c.Lang.HTTPHeaderName)
+
 	return validation.Errors{
 		"lang.fallback": validation.Validate(
 			c.Lang.Fallback,

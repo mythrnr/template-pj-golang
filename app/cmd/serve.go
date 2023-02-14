@@ -1,10 +1,11 @@
-package cmds
+package cmd
 
 import (
+	"log"
 	"os"
 
+	"github.com/mythrnr/template-pj-golang/app/http"
 	"github.com/mythrnr/template-pj-golang/config"
-	"github.com/mythrnr/template-pj-golang/http"
 	"github.com/mythrnr/template-pj-golang/migration"
 	"github.com/urfave/cli/v2"
 )
@@ -14,6 +15,8 @@ var ServeCommand = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		c, err := config.Load()
 		if err != nil {
+			log.Printf("%+v", err)
+
 			return err
 		}
 
@@ -22,7 +25,15 @@ var ServeCommand = &cli.Command{
 		}
 
 		if c.App.Env == config.EnvLocal {
-			if err := migration.Up(getMigrationDatabaseURL()); err != nil {
+			if err := migration.Up(getDSN(false)); err != nil {
+				log.Printf("%+v", err)
+
+				return err
+			}
+
+			if err := migration.Up(getDSN(true)); err != nil {
+				log.Printf("%+v", err)
+
 				return err
 			}
 		}

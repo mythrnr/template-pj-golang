@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	pkgerrs "github.com/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 // AllowedMinPort はウェルノウンポート（ 0-1023 ）を
@@ -44,20 +44,20 @@ const (
 )
 
 func (c *Config) bindApp() error {
-	if v := os.Getenv("APP_ENV"); v != "" {
-		c.App.Env = ts(v)
+	if v := ts(os.Getenv("APP_ENV")); v != "" {
+		c.App.Env = v
 	}
 
-	if v, err := strconv.ParseUint(
-		os.Getenv("APP_LISTEN_PORT"), 10, 16,
-	); err != nil {
-		return pkgerrs.WithStack(err)
-	} else if v != 0 {
-		c.App.ListenPort = uint16(v)
+	if v := ts(os.Getenv("APP_LISTEN_PORT")); v != "" {
+		if v, err := strconv.ParseUint(v, 10, 16); err != nil {
+			return errors.WithStack(err)
+		} else if v != 0 {
+			c.App.ListenPort = uint16(v)
+		}
 	}
 
-	if v := os.Getenv("APP_LOG_LEVEL"); v != "" {
-		c.App.LogLevel = ts(v)
+	if v := ts(os.Getenv("APP_LOG_LEVEL")); v != "" {
+		c.App.LogLevel = v
 	}
 
 	return validation.Errors{

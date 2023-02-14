@@ -1,12 +1,19 @@
+# syntax=docker/dockerfile:1
 FROM alpine
 
 WORKDIR /workdir
 
-RUN set -eux \
-    && apk update \
-    && apk upgrade \
-    && apk add --no-cache openssl \
-    && rm -rf /tmp/* /var/cache/apk/*
+RUN <<EOF
+    set -eux
+    #
+    # Update apk packages
+    #
+    apk update
+    apk upgrade
+    apk add --no-cache openssl
+    rm -rf /tmp/*
+    rm -rf /var/cache/apk/*
+EOF
 
 COPY scripts/certs.sh /certs.sh
 

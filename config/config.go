@@ -44,18 +44,16 @@ type Config struct {
 		} `yaml:"connection"`
 		Logging bool `yaml:"logging"`
 		MySQL   struct {
-			Charset  string `yaml:"charset"`
-			Database string `yaml:"database"`
-			Host     string `yaml:"host"`
-			Password string `yaml:"password"`
-			Port     uint16 `yaml:"port"`
-			Timezone string `yaml:"timezone"`
-			Username string `yaml:"username"`
+			Charset   string `yaml:"charset"`
+			Database  string `yaml:"database"`
+			HostRead  string `yaml:"host_read"`
+			HostWrite string `yaml:"host_write"`
+			Password  string `yaml:"password"`
+			Port      uint16 `yaml:"port"`
+			Timezone  string `yaml:"timezone"`
+			Username  string `yaml:"username"`
 		} `yaml:"mysql"`
 	} `yaml:"database"`
-	Elasticsearch struct {
-		Hosts []string `yaml:"hosts"`
-	} `yaml:"elasticsearch"`
 	HTTP struct {
 		DefaultTimeoutSeconds uint8  `yaml:"default_timeout_seconds"`
 		Proxy                 string `yaml:"proxy"`
@@ -96,7 +94,6 @@ func (c *Config) bind() error {
 		c.bindApp(),
 		c.bindCache(),
 		c.bindDatabase(),
-		c.bindElasticsearch(),
 		c.bindHTTP(),
 		c.bindLang(),
 	); err != nil {
@@ -113,6 +110,17 @@ func cs(v string) []string {
 
 	for _, v := range vs {
 		ds = append(ds, ts(v))
+	}
+
+	return ds
+}
+func filter(vs []string) []string {
+	ds := make([]string, 0, len(vs))
+
+	for _, v := range vs {
+		if v := ts(v); v != "" {
+			ds = append(ds, v)
+		}
 	}
 
 	return ds

@@ -4,13 +4,13 @@
 
 ### 必須
 
-- `Docker Compose` , `Docker` , `GolangCI-Lint` ,
-  `make` , `mockery`
+- `Docker` , `Docker Compose v2` , `GolangCI-Lint` , `make` , `mockery`
 
 ```bash
+brew install --cask docker
+
 brew install \
   docker \
-  docker-compose \
   golangci/tap/golangci-lint \
   make \
   mockery

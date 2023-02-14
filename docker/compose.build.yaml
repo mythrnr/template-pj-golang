@@ -1,20 +1,24 @@
-version: "3.8"
-
 # ビルド用
+name: "mythrnr-template-pj-golang"
+
+x-build: &build
+  args:
+    APP_VERSION: "${APP_VERSION:?required}"
+    GITHUB_TOKEN: "${GITHUB_TOKEN:?required}"
+    HTTP_PROXY: "${HTTP_PROXY}"
+    HTTPS_PROXY: "${HTTPS_PROXY}"
+  pull: true
+
 services:
   app:
     build: &build
+      <<: *build
       context: "../"
       dockerfile: "docker/app/Dockerfile"
-      args: &args
-        APP_VERSION: "${APP_VERSION:?required}"
-        GITHUB_TOKEN: "${GITHUB_TOKEN:?required}"
-        HTTP_PROXY: "${HTTP_PROXY}"
-        HTTPS_PROXY: "${HTTPS_PROXY}"
     image: "mythrnr/template-pj-golang:app-${APP_VERSION}"
 
   web:
     build:
+      <<: *build
       context: "./nginx"
-      args: *args
     image: "mythrnr/template-pj-golang:web-${APP_VERSION}"

@@ -1,0 +1,63 @@
+# via https://docs.github.com/en/actions/creating-actions/creating-a-composite-run-steps-action#creating-an-action-metadata-file
+name: "Scan Vulnerabilities"
+description: "Scan Vulnerabilities using nancy."
+inputs:
+  go-version:
+    description: "Version to specify actions/setup-go"
+    default: "1.19"
+    required: false
+  app-id:
+    description: "ID of Github Apps that has permission to access other private repositories."
+    required: true
+  private-key:
+    description: "Private key of Github Apps."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Issue access token"
+      id: "issue-token"
+      uses: "getsentry/action-github-app-token@v2.0.0"
+      with:
+        app_id: "${{ inputs.app-id }}"
+        private_key: "${{ inputs.private-key }}"
+
+    - uses: "actions/checkout@v3"
+      with:
+        token: "${{ steps.issue-token.outputs.token }}"
+
+    - name: "Prepare git access"
+      uses: "./.github/actions/prepare-git-access"
+      with:
+        secret-token: "${{ steps.issue-token.outputs.token }}"
+
+    - uses: "actions/setup-go@v3"
+      with:
+        go-version: "1.19"
+
+    - name: "Get directory path of Go Modules"
+      shell: "bash"
+      id: "go-mod-dir"
+      run: |
+        GO_MOD_DIR=$(go env GOPATH)/pkg/mod
+        echo "dir=${GO_MOD_DIR}" >> $GITHUB_OUTPUT
+
+    - name: "Restore directory of Go Modules"
+      uses: "actions/cache@v3"
+      # use this to check for `cache-hit`
+      # `steps.restore-go-mod-dir.outputs.cache-hit != 'true'`
+      id: "restore-go-mod-dir"
+      with:
+        path: |
+          ${{ steps.go-mod-dir.outputs.dir }}
+          ~/.cache/go-build
+        key: "${{ runner.os }}-go-${{ hashFiles('go.sum') }}"
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: "Write go.list file"
+      shell: "bash"
+      run: "go list -buildvcs=false -deps -json ./... > go.list"
+
+    - uses: "sonatype-nexus-community/nancy-github-action@main"

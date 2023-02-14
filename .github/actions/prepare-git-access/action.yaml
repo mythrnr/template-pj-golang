@@ -1,0 +1,31 @@
+# via https://docs.github.com/en/actions/creating-actions/creating-a-composite-run-steps-action#creating-an-action-metadata-file
+name: "Prepare git access"
+description: "Prepare to access private repositories."
+inputs:
+  secret-token:
+    description: "The access token. Generated as Personal Access Token or Github Apps Token."
+    required: true
+  location:
+    description: "The location to put .netrc"
+    required: true
+    default: "~/.netrc"
+  using-pat:
+    description: "Set 'true' if you want to use PAT."
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - shell: "bash"
+      if: "inputs.using-pat == 'true'"
+      run: |
+        echo "machine github.com" >> ${{ inputs.location }}
+        echo "    login ${{ inputs.secret-token }}" >> ${{ inputs.location }}
+        echo "    password x-oauth-basic" >> ${{ inputs.location }}
+
+    - shell: "bash"
+      if: "inputs.using-pat != 'true'"
+      run: |
+        echo "machine github.com" >> ${{ inputs.location }}
+        echo "    login x-access-token" >> ${{ inputs.location }}
+        echo "    password ${{ inputs.secret-token }}" >> ${{ inputs.location }}

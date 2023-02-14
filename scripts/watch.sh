@@ -7,7 +7,7 @@ function run () {
     kill -9 $pid
   fi
 
-  go build -trimpath -o .tmp/app main.go \
+  go build -trimpath -buildvcs=false -o .tmp/app main.go \
     && chmod +x .tmp/app \
     && .tmp/app serve &
 
@@ -15,6 +15,7 @@ function run () {
 }
 
 function watch () {
+  # shellcheck disable=SC2046
   inotifywait \
     --event create \
     --event delete \
@@ -22,7 +23,7 @@ function watch () {
     --event move \
     --include "\.(go|yaml)$" \
     --monitor \
-    --recursive `ls`
+    --recursive $(ls)
 }
 
 run

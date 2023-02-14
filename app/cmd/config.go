@@ -1,6 +1,7 @@
-package cmds
+package cmd
 
 import (
+	"log"
 	"os"
 
 	"github.com/mythrnr/template-pj-golang/config"
@@ -12,6 +13,8 @@ var ConfigCommand = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		c, err := config.Load()
 		if err != nil {
+			log.Printf("%+v", err)
+
 			return err
 		}
 

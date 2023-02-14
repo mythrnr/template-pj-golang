@@ -1,5 +1,6 @@
 package migration
 
+//nolint:revive
 import (
 	"embed"
 	"errors"

@@ -2,59 +2,50 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.158.0/containers/docker-existing-docker-compose
 // If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
 {
-  "dockerComposeFile": [
-    "../docker/docker-compose.yaml",
-    "../docker/docker-compose.override.yaml"
-  ],
-  "extensions": [
-    "golang.go"
-  ],
-  "name": "develop",
-  "service": "app",
-  "settings": {
-    "[json][jsonc]": {
-      "editor.defaultFormatter": "vscode.json-language-features",
-      "editor.tabSize": 2
-    },
-    "[markdown]": {
-      "editor.defaultFormatter": "mrmlnc.vscode-remark",
-      "editor.formatOnSave": false,
-      "files.trimTrailingWhitespace": false
-    },
-    "[yaml]": {
-      "editor.defaultFormatter": "redhat.vscode-yaml"
-    },
-    "editor.formatOnSave": true,
-    "editor.insertSpaces": false,
-    "go.autocompleteUnimportedPackages": true,
-    "go.formatTool": "goimports",
-    "go.inferGopath": false,
-    "go.languageServerExperimentalFeatures": {
-      "diagnostics": true
-    },
-    "go.lintOnSave": "workspace",
-    "go.lintTool": "golangci-lint",
-    "go.lintFlags": [
-      "--fast"
-    ],
-    "go.toolsEnvVars": {
-      "GO111MODULE": "on"
-    },
-    "go.useLanguageServer": true,
-    "terminal.integrated.profiles.linux": {
-      "ash": {
-        "path": "/bin/ash",
-        "args": [
-          "--login"
-        ]
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "[markdown]": {
+          "editor.formatOnSave": false,
+          "files.trimTrailingWhitespace": false
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "redhat.vscode-yaml"
+        },
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": false,
+        "go.autocompleteUnimportedPackages": true,
+        "go.formatTool": "goimports",
+        "go.inferGopath": false,
+        "go.languageServerExperimentalFeatures": {
+          "diagnostics": true
+        },
+        "go.lintOnSave": "workspace",
+        "go.lintTool": "golangci-lint",
+        "go.lintFlags": [
+          "--fast"
+        ],
+        "go.toolsEnvVars": {
+          "GO111MODULE": "on"
+        },
+        "go.useLanguageServer": true
       }
     }
   },
+  "dockerComposeFile": [
+    "../docker/compose.yaml",
+    "../docker/compose.override.yaml"
+  ],
+  "name": "develop",
   "remoteUser": "golang",
   "runServices": [
     "app",
     "database",
     "web"
   ],
+  "service": "app",
   "workspaceFolder": "/go/src/github.com/mythrnr/template-pj-golang"
 }

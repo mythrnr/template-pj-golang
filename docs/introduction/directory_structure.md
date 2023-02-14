@@ -7,19 +7,17 @@ template-pj-golang
 ├── .devcontainer  ... VSCode で Remote Container を使うための設定
 ├── .github        ... GitHub 関連の設定（ Workflow など）
 ├── .vscode        ... このプロジェクトで使用する VSCode の設定
-├── cmds           ... 各コマンドを配置
+├── app            ... 各コマンドを配置
+├── bin            ... 成果物のバイナリが出力される場所
 ├── config         ... アプリケーションの設定ファイル
 ├── docker         ... Docker の設定ファイル
 ├── docs           ... ドキュメント配置場所
-├── http           ... HTTP 層の処理
+├── featureXXX     ... 機能を実装する場所. 配下の `domain` と `usecase` はこの機能内で使用するもののみ
 ├── integrate      ... 結合テスト配置場所
 ├── migration      ... DBのマイグレーション用ファイル
-├── pkg            ... 汎用性のある処理を配置
-├── repository     ... Repository 層の処理
+├── repository     ... Repository 層の実装
 ├── scripts        ... 開発用の各種スクリプト
-├── usecase        ... Usecase 層の処理
 ├── .editorconfig
-├── .env           ... Docker Compose 用の .env ファイル
 ├── .gitignore
 ├── .golangci.yaml
 ├── .netrc.example

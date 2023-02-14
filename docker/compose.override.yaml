@@ -1,0 +1,18 @@
+# ローカル環境用
+services:
+  database:
+    ports:
+      - "3306:3306"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  web:
+    ports:
+      - "443:443"
+    volumes:
+      - type: "bind"
+        source: "../docs/openapi"
+        target: "/var/www/docs/openapi"
+        read_only: true

@@ -8,10 +8,10 @@ SUBJECT=$( \
   printf "/L=Chiyoda-ku"; \
   printf "/O=Example Organization CO., LTD."; \
   printf "/OU=Development"; \
-  printf "/CN=${COMMON_NAME}"; \
+  printf "/CN=%s" "${COMMON_NAME}"; \
 )
 
-cd /tmp
+cd /tmp || exit 1
 
 openssl genrsa 2048 > server.key
 echo "subjectAltName=DNS:${COMMON_NAME}" > server.ext

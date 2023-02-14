@@ -16,11 +16,15 @@ on:
         required: true
         default: ""
 
+permissions:
+  contents: "read"
+
 env:
   SLACK_COLOR_FAILED: "#a92d2e"
   SLACK_COLOR: "#32bd77"
   SLACK_ICON: "https://github.com/github.png"
   SLACK_USERNAME: "GitHub Actions"
+  SLACK_WEBHOOK_URL: ${{ secrets[fromJSON('["TESTING_SLACK_WEBHOOK", "PRODUCTION_SLACK_WEBHOOK"]')[github.event.inputs.env == 'production']] }}
 
 jobs:
   deploy:
@@ -28,7 +32,7 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 10
     steps:
-      - run: echo "run commands to release"
+      - run: echo "run commands to deploy"
 
   notify:
     name: "Slack Notification on success"
@@ -36,19 +40,8 @@ jobs:
     timeout-minutes: 5
     needs:
       - "deploy"
-
-    env:
-      SLACK_WEBHOOK: |
-        ${{ secrets[fromJSON('[
-          "TESTING_SLACK_WEBHOOK",
-          "PRODUCTION_SLACK_WEBHOOK"
-        ]')[github.event.inputs.env == 'production']] }}
-
     steps:
       - uses: "8398a7/action-slack@v3"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
         with:
           status: "custom"
           custom_payload: |
@@ -84,22 +77,10 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     needs:
-      - "env"
       - "deploy"
       - "notify"
-
-    env:
-      SLACK_WEBHOOK: |
-        ${{ secrets[fromJSON('[
-          "TESTING_SLACK_WEBHOOK",
-          "PRODUCTION_SLACK_WEBHOOK"
-        ]')[github.event.inputs.env == 'production']] }}
-
     steps:
       - uses: "8398a7/action-slack@v3"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
         with:
           status: "custom"
           custom_payload: |

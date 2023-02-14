@@ -3,12 +3,12 @@
 # アプリケーション設定ファイル
 #
 #   Description:
-#     環境に関係なく共通な設定もしくは環境設定のデフォルト値を記載
-#     共通だとしても秘匿性のある情報は記載せず, .env.* ファイルに記載
+#     環境に関係なく共通な設定もしくは環境設定のデフォルト値を記載.
+#     共通だとしても秘匿性のある情報は記載せず, 環境変数を設定する.
 #
 #   Example:
-#     # env: KEY ... .env ファイルでのキー名. ない場合は '-'
-#     # type: bool, int, uint, string, ... 設定値の型(Golang準拠)
+#     # env: KEY ... 環境変数名. 無い場合は '-'
+#     # type: bool, int, uint, string, ... 設定値の型（Golang 準拠）
 #     # required: true|false ... 環境変数が必須かどうか. env がない場合は '-'
 #     # description: 1 < value < 10 など ... 設定値に関する説明
 #     key: value
@@ -30,8 +30,8 @@ app:
   # type: uint16
   # required: false
   # description:
-  #   リッスンポート. 0〜1023は使用不可
-  listen_port: 8080
+  #   リッスンポート. 0〜1023 は使用不可
+  listen_port: 8000
 
   # env: APP_LOG_LEVEL
   # type: string
@@ -66,35 +66,35 @@ cache:
     port: 6379
 
 #
-# DBに関する設定
+# DB に関する設定
 #
 database:
   #
   # Connection
   #
-  # Go 言語でのデータベース接続に関する設定
+  # Go 言語でのデータベース接続に関する設定.
   # see: http://dsas.blog.klab.org/archives/2018-02/configure-sql-db.html
   # see: https://tutuz-tech.hatenablog.com/entry/2020/03/24/170159
   connection:
-    # env: DATABASE_CONN_LIFETIME_SECONDS
+    # env: DATABASE_CONN_LIFETIME
     # type: uint
-    # required: false
-    # description: アイドル状態の接続を何秒間保持するか
-    life_time_seconds: 10
+    # required: true
+    # description: アイドル状態の接続を何秒間保持するか.
+    life_time: 0
 
     # env: DATABASE_CONN_MAXIDLE
     # type: uint
-    # required: false
+    # required: true
     # description:
     #   アイドル状態の接続を最大でいくつ保持するか.
-    #   max_open 以上の値を設定する
-    max_idle: 20
+    #   max_open よりも小さい値を設定する.
+    max_idle: 0
 
     # env: DATABASE_CONN_MAXOPEN
     # type: uint
-    # required: false
-    # description: アクティブな接続を最大でいくつ保持するか
-    max_open: 20
+    # required: true
+    # description: アイドル状態の接続を最大でいくつ保持するか.
+    max_open: 0
 
   # env: DATABASE_LOGGING
   # type: bool
@@ -108,62 +108,56 @@ database:
   mysql:
     # env: -
     # type: string
-    # required: -
-    # description: DB接続時に使用する文字コード
+    # required: true
+    # description: DB 接続時に使用する文字コード
     charset: "utf8mb4"
 
     # env: DATABASE_MYSQL_DBNAME
     # type: string
     # required: true
-    # description: DB名. 環境変数から取得する
+    # description: DB 名
     database: ""
 
-    # env: DATABASE_MYSQL_HOST
+    # env: DATABASE_MYSQL_HOST_READ
     # type: string
     # required: true
-    # description: DB ホスト名. 環境変数から取得する
-    host: ""
+    # description: レプリカのホスト名
+    host_read: ""
+
+    # env: DATABASE_MYSQL_HOST_WRITE
+    # type: string
+    # required: true
+    # description: マスターのホスト名
+    host_write: ""
 
     # env: DATABASE_MYSQL_PASSWORD
     # type: string
     # required: true
-    # description: パスワード. 環境変数から取得する
+    # description: パスワード
     password: ""
 
     # env: DATABASE_MYSQL_PORT
     # type: uint16
-    # required: false
-    # description: ポート番号
+    # required: true
+    # description: ポート.
     port: 3306
 
     # env: -
     # type: string
-    # required: -
+    # required: true
     # description:
-    #   MySQL で扱う値のタイムゾーン設定.
+    #   MySQL で扱う値のタイムゾーン設定
     #   時刻は全て世界標準時で扱う
     timezone: "UTC"
 
     # env: DATABASE_MYSQL_USER
     # type: string
     # required: true
-    # description: ユーザー名. 環境変数から取得する
+    # description: ユーザー名
     username: ""
 
 #
-# Elasticsearchに関する設定
-#
-elasticsearch:
-  # env: ELASTICSEARCH_HOSTS
-  # type: []string
-  # required: true
-  # description:
-  #   ホスト名の配列. 環境変数から取得する.
-  #   複数指定する場合はカンマ "," 区切り.
-  hosts:
-
-#
-# 外部HTTP接続に関する設定
+# 外部 HTTP 接続に関する設定
 #
 http:
   # env: -

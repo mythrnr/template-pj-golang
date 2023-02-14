@@ -23,11 +23,16 @@ BRANCH="master or develop"
 RELEASE_ENV="production or testing"
 VERSION="v20.08.0"
 
-WORKFLOW_ID=$(curl -sL https://$GITHUB_TOKEN@api.github.com/repos/mythrnr/template-pj-golang/actions/workflows | jq '.workflows[] | select(.path | contains("deploy")) | .id')
+WORKFLOW_ID=$(curl -sL \
+    -H "Authorization: token $GITHUB_TOKEN" \
+    -H "Accept: application/vnd.github+json" \
+    -H "Content-Type: application/json" \
+    "https://api.github.com/repos/mythrnr/template-pj-golang/actions/workflows" \
+    | jq '.workflows[] | select(.path | contains("deploy-app")) | .id')
 
 curl -vvv -X POST \
-    -H "Authorization: token $GITHUB_TOKEN"
-    -H "Accept: application/vnd.github.v3+json" \
+    -H "Authorization: token $GITHUB_TOKEN" \
+    -H "Accept: application/vnd.github+json" \
     -H "Content-Type: application/json" \
     "https://api.github.com/repos/mythrnr/template-pj-golang/actions/workflows/$WORKFLOW_ID/dispatches" \
     -d "{ \"ref\": \"$BRANCH\", \"inputs\": { \"env\": \"$RELEASE_ENV\", \"version\": \"$VERSION\" } }"

@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # define directories
-project_dir=$(cd $(dirname $(dirname ${0})) && pwd)
-src_dir=$(dirname $(dirname $(dirname ${project_dir})))
+scripts_dir=$(dirname "${0}")
+project_dir=$(readlink -f "${scripts_dir}/..")
+src_dir=$(readlink -f "${project_dir}/../../..")
 doc_dir="${project_dir}/docs/unit_tests"
 
 # create tmp shell
-tmp_filename="/tmp/"$(cat /dev/urandom | LC_CTYPE=C tr -dc "abcdefghijkmnpqrstuvwxyz" | fold -w 16 | head -n 1)
-echo "#!/bin/bash" >>$tmp_filename
-chmod 700 $tmp_filename
+# cspell:disable-next-line
+tmp_filename="/tmp/"$(LC_CTYPE=C tr -dc "abcdefghijkmnpqrstuvwxyz" < /dev/urandom | fold -w 16 | head -n 1)
+echo "#!/bin/bash" >> "${tmp_filename}"
+chmod 700 "${tmp_filename}"
 
 # カバレッジの index.html 出力用
 pkglinks=""
@@ -23,9 +25,9 @@ function write_shell() {
   html="${dir}/index.html"
   markdown="${dir}/README.md"
   outfile="${dir}/cover.out"
-  pkg=${1#${src_dir}/}
+  pkg=${1#"${src_dir}"/}
 
-  cat <<-EOF >>$tmp_filename
+  cat <<-EOF >> "${tmp_filename}"
 {
   mkdir -p "${dir}"
   {
@@ -33,16 +35,16 @@ function write_shell() {
     echo ""
     echo "| File | Line | Func | Coverage |"
     echo "| ---- | ----: | ---- | ----: |"
-  } >${markdown}
-  go test -coverprofile=${outfile} "${pkg}" \\
-  && go tool cover -html=${outfile} -o ${html} \\
-  && go tool cover -func=${outfile} |
+  } > "${markdown}"
+  go test -coverprofile="${outfile}" "${pkg}" \\
+  && go tool cover -html="${outfile}" -o "${html}" \\
+  && go tool cover -func="${outfile}" |
     tr -s '\t' |
     tr '\t' '|' |
     sed -E "s/:(\d+):/\|\1/g" |
     sed "s/total:/total\|/g" |
     sed "s/^/\|/g" |
-    sed "s/$/\|/g" >>${markdown}
+    sed "s/$/\|/g" >> "${markdown}"
 }
 EOF
 
@@ -56,32 +58,32 @@ EOF
 # @param $1 string 書き込みルートディレクトリ
 #
 function generate_shell() {
-  if $(echo $1 | grep -e mocks -e integrate > /dev/null); then
+  if echo "${1}" | grep -e mocks -e integrate > /dev/null; then
     return
   fi
 
-  ls $1/*.go >>/dev/null 2>&1
+  ls "${1}"/*.go >> /dev/null 2>&1
   exists=$?
 
   if [ "0" = "$exists" ]; then
-    write_shell $1
+    write_shell "${1}"
   fi
 
-  for d in $(ls $1); do
-    if [ -d "${1}/${d}" ]; then
-      generate_shell "${1}/${d}"
+  for d in "${1}"/*; do
+    if [ -d "${d}" ]; then
+      generate_shell "${d}"
     fi
   done
 }
 
-cd $project_dir
-generate_shell $project_dir
+cd "${project_dir}" || exit 1
+generate_shell "${project_dir}"
 
-echo "echo 'Testing successfully.'" >> $tmp_filename
+echo "echo 'Testing successfully.'" >> "${tmp_filename}"
 
-sh $tmp_filename
+sh "${tmp_filename}"
 sts=$?
-rm -f $tmp_filename
+rm -f "${tmp_filename}"
 
 # replace contents.
 content="<div id=\"content\"><style>a{color: white;}</style><ul>${pkglinks}</ul>"

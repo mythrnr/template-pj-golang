@@ -5,6 +5,9 @@ on:
   #   - cron: "0 0 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: "read"
+
 jobs:
   scan-vulnerabilities:
     name: "Scan Vulnerabilities"
@@ -13,11 +16,8 @@ jobs:
     steps:
       - uses: "actions/checkout@v3"
 
-      - uses: "actions/setup-go@v3"
+      - name: "Scan Vulnerabilities"
+        uses: "./.github/actions/scan-vulnerabilities"
         with:
-          go-version: "1.19"
-
-      - name: "Write go.list file"
-        run: "go list -json -m all > go.list"
-
-      - uses: "sonatype-nexus-community/nancy-github-action@main"
+          app-id: "${{ secrets.CI_APP_ID }}"
+          private-key: "${{ secrets.CI_APP_PRIVATE_KEY }}"

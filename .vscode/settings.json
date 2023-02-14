@@ -1,4 +1,4 @@
-// NOTE: .devcontainer/devcontainer.json の settings にも同じものを書く
+// NOTE: .devcontainer/devcontainer.json の customizations/vscode/settings にも同じものを書く
 {
   "[markdown]": {
     "editor.formatOnSave": false,

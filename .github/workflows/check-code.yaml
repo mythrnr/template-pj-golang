@@ -13,11 +13,15 @@ on:
       - "**.yaml"
   workflow_dispatch:
 
+permissions:
+  contents: "read"
+
 env:
   SLACK_COLOR_FAILED: "#a92d2e"
   SLACK_COLOR: "#32bd77"
   SLACK_ICON: "https://github.com/github.png"
   SLACK_USERNAME: "GitHub Actions"
+  SLACK_WEBHOOK_URL: ${{ secrets[fromJSON('["TESTING_SLACK_WEBHOOK", "PRODUCTION_SLACK_WEBHOOK"]')[contains(github.ref, 'master')]] }}
 
 jobs:
   golangci-lint:
@@ -25,12 +29,21 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     steps:
-      - uses: "actions/checkout@v3"
-
-      - name: "Put .netrc"
-        uses: "./.github/actions/put-netrc"
+      - name: "Issue access token"
+        id: "issue-token"
+        uses: "getsentry/action-github-app-token@v2.0.0"
         with:
-          secret-token: "${{ secrets.SECRET_TOKEN }}"
+          app_id: "${{ secrets.CI_APP_ID }}"
+          private_key: "${{ secrets.CI_APP_PRIVATE_KEY }}"
+
+      - uses: "actions/checkout@v3"
+        with:
+          token: "${{ steps.issue-token.outputs.token }}"
+
+      - name: "Prepare git access"
+        uses: "./.github/actions/prepare-git-access"
+        with:
+          secret-token: "${{ steps.issue-token.outputs.token }}"
 
       - uses: "golangci/golangci-lint-action@v3"
         with:
@@ -43,19 +56,11 @@ jobs:
     steps:
       - uses: "actions/checkout@v3"
 
-      - name: "Put .netrc"
-        uses: "./.github/actions/put-netrc"
+      - name: "Scan Vulnerabilities"
+        uses: "./.github/actions/scan-vulnerabilities"
         with:
-          secret-token: "${{ secrets.SECRET_TOKEN }}"
-
-      - uses: "actions/setup-go@v3"
-        with:
-          go-version: "1.19"
-
-      - name: "Write go.list file"
-        run: "go list -json -m all > go.list"
-
-      - uses: "sonatype-nexus-community/nancy-github-action@main"
+          app-id: "${{ secrets.CI_APP_ID }}"
+          private-key: "${{ secrets.CI_APP_PRIVATE_KEY }}"
 
   spell-check:
     name: "Check spell"
@@ -63,13 +68,6 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: "actions/checkout@v3"
-
-      - uses: "actions/setup-node@v3"
-        with:
-          node-version: "16.x"
-
-      - name: "Install cSpell"
-        run: "npm install -g cspell"
 
       - name: "Run spell check"
         run: "make spell-check"
@@ -79,20 +77,20 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 10
     steps:
-      - name: "Configure sysctl limits for Elasticsearch"
-        run: |
-          sudo swapoff -a
-          sudo sysctl -w vm.swappiness=1
-          sudo sysctl -w fs.file-max=262144
-          sudo sysctl -w vm.max_map_count=262144
-
       - uses: "actions/checkout@v3"
 
-      - name: "Put .netrc"
-        uses: "./.github/actions/put-netrc"
+      - name: "Issue access token"
+        id: "issue-token"
+        uses: "getsentry/action-github-app-token@v2.0.0"
         with:
-          location: ".netrc"
-          secret-token: "${{ secrets.SECRET_TOKEN }}"
+          app_id: "${{ secrets.CI_APP_ID }}"
+          private_key: "${{ secrets.CI_APP_PRIVATE_KEY }}"
+
+      - name: "Prepare git access"
+        uses: "./.github/actions/prepare-git-access"
+        with:
+          location: "${{ github.workspace }}/.netrc"
+          secret-token: "${{ steps.issue-token.outputs.token }}"
 
       - uses: "actions/setup-go@v3"
         with:
@@ -104,42 +102,55 @@ jobs:
           username: "${{ secrets.DOCKERHUB_USERNAME }}"
           password: "${{ secrets.DOCKERHUB_TOKEN }}"
 
-      - name: "Get GOMODCACHE directory path"
+      - name: "Get directory path of Go packages"
+        id: "go-pkg-dir"
         run: |
-          GOMODCACHE=$(go env GOPATH)/pkg
-          mkdir -p $GOMODCACHE
+          GO_PKG_DIR=$(go env GOPATH)/pkg
+          echo "dir=${GO_PKG_DIR}" >> $GITHUB_OUTPUT
 
-          echo "GO_PKGDIR=$GOMODCACHE" >> $GITHUB_ENV
-
-      - name: "Cache GOMODCACHE directory"
+      - name: "Restore directory of Go packages"
         uses: "actions/cache@v3"
         # use this to check for `cache-hit`
-        # `steps.gomodcache.outputs.cache-hit != 'true'`
-        id: "gomodcache"
+        # `steps.restore-go-pkg-dir.outputs.cache-hit != 'true'`
+        id: "restore-go-pkg-dir"
         with:
-          path: "${{ env.GO_PKGDIR }}"
-          key: "${{ runner.os }}-${{ hashFiles(format('{0}{1}', github.workspace, '/.github/workflows/check_code.yaml')) }}-${{ hashFiles(format('{0}{1}', github.workspace, '/go.sum')) }}"
-          restore-keys: "${{ runner.os }}-"
+          path: |
+            ~/.cache/go-build
+            ${{ steps.go-pkg-dir.outputs.dir }}/mod
+          key: "${{ runner.os }}-go-${{ hashFiles('go.sum') }}"
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: "Prepare Unit Test"
         run: |
+          mkdir -p ${{ steps.go-pkg-dir.outputs.dir }}
+          cat ${{ github.workspace }}/.netrc > ~/.netrc
+          go mod tidy
+
           make pull \
             overridefile=github \
-            go_pkgdir=${{ env.GO_PKGDIR }}
+            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }}
 
           make tidy \
             overridefile=github \
-            go_pkgdir=${{ env.GO_PKGDIR }}
+            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }}
 
           CUR_USER=`id -u $USER`
           CUR_GROUP=`id -g $USER`
-          sudo chown -R $CUR_USER:$CUR_GROUP ${{ env.GO_PKGDIR }}
+          sudo chown -R $CUR_USER:$CUR_GROUP ${{ steps.go-pkg-dir.outputs.dir }}
+
+      - name: "Run database migration"
+        run: |
+          make migrate-exec \
+            overridefile=github \
+            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }} \
+            TEST=1
 
       - name: "Run tests"
         run: |
           make test-json \
             overridefile=github \
-            go_pkgdir=${{ env.GO_PKGDIR }} \
+            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }} \
             1> result.json
 
       - name: "Annotate tests"
@@ -157,19 +168,8 @@ jobs:
       - "scan-vulnerabilities"
       - "spell-check"
       - "testing"
-
-    env:
-      SLACK_WEBHOOK: |
-        ${{ secrets[fromJSON('[
-          "TESTING_SLACK_WEBHOOK",
-          "PRODUCTION_SLACK_WEBHOOK"
-        ]')[contains(github.ref, 'master')]] }}
-
     steps:
       - uses: "8398a7/action-slack@v3"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
         with:
           status: "custom"
           custom_payload: |
@@ -209,19 +209,8 @@ jobs:
       - "scan-vulnerabilities"
       - "spell-check"
       - "testing"
-
-    env:
-      SLACK_WEBHOOK: |
-        ${{ secrets[fromJSON('[
-          "TESTING_SLACK_WEBHOOK",
-          "PRODUCTION_SLACK_WEBHOOK"
-        ]')[contains(github.ref, 'master')]] }}
-
     steps:
       - uses: "8398a7/action-slack@v3"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          SLACK_WEBHOOK_URL: "${{ env.SLACK_WEBHOOK }}"
         with:
           status: "custom"
           custom_payload: |
