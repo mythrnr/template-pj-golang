@@ -102,36 +102,39 @@ jobs:
           username: "${{ secrets.DOCKERHUB_USERNAME }}"
           password: "${{ secrets.DOCKERHUB_TOKEN }}"
 
+      - name: "Set Go package directory path"
+        run: echo "GO_PKG_DIR=$(go env GOPATH)/pkg" >> $GITHUB_ENV
+
       - name: "Prepare Unit Test"
         run: |
-          mkdir -p ${{ steps.go-pkg-dir.outputs.dir }}
+          mkdir -p ${{ env.GO_PKG_DIR }}
           cat ${{ github.workspace }}/.netrc > ~/.netrc
           go mod tidy
 
           make pull \
             overridefile=github \
-            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }}
+            go_pkgdir=${{ env.GO_PKG_DIR }}
 
           make tidy \
             overridefile=github \
-            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }}
+            go_pkgdir=${{ env.GO_PKG_DIR }}
 
           CUR_USER=`id -u $USER`
           CUR_GROUP=`id -g $USER`
-          sudo chown -R $CUR_USER:$CUR_GROUP ${{ steps.go-pkg-dir.outputs.dir }}
+          sudo chown -R $CUR_USER:$CUR_GROUP ${{ env.GO_PKG_DIR }}
 
       - name: "Run database migration"
         run: |
           make migrate-exec \
             overridefile=github \
-            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }} \
+            go_pkgdir=${{ env.GO_PKG_DIR }} \
             TEST=1
 
       - name: "Run tests"
         run: |
           make test-json \
             overridefile=github \
-            go_pkgdir=${{ steps.go-pkg-dir.outputs.dir }} \
+            go_pkgdir=${{ env.GO_PKG_DIR }} \
             1> result.json
 
       - name: "Annotate tests"
