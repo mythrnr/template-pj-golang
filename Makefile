@@ -205,6 +205,15 @@ push:
 	docker compose \
 		-f compose.build.yaml push
 
+.PHONY: release
+release:
+	if [ "$(tag)" = "" ]; then \
+		echo "tag name is required."; \
+		exit 1; \
+	fi \
+	&& git tag $(tag) \
+	&& git push origin $(tag)
+
 .PHONY: serve
 serve:
 	cd docker \

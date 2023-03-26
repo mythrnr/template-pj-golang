@@ -4,7 +4,7 @@ description: "Scan Vulnerabilities using nancy."
 inputs:
   go-version:
     description: "Version to specify actions/setup-go"
-    default: "1.19"
+    default: "1.20"
     required: false
   app-id:
     description: "ID of Github Apps that has permission to access other private repositories."
@@ -32,29 +32,9 @@ runs:
       with:
         secret-token: "${{ steps.issue-token.outputs.token }}"
 
-    - uses: "actions/setup-go@v3"
+    - uses: "actions/setup-go@v4"
       with:
-        go-version: "1.19"
-
-    - name: "Get directory path of Go Modules"
-      shell: "bash"
-      id: "go-mod-dir"
-      run: |
-        GO_MOD_DIR=$(go env GOPATH)/pkg/mod
-        echo "dir=${GO_MOD_DIR}" >> $GITHUB_OUTPUT
-
-    - name: "Restore directory of Go Modules"
-      uses: "actions/cache@v3"
-      # use this to check for `cache-hit`
-      # `steps.restore-go-mod-dir.outputs.cache-hit != 'true'`
-      id: "restore-go-mod-dir"
-      with:
-        path: |
-          ${{ steps.go-mod-dir.outputs.dir }}
-          ~/.cache/go-build
-        key: "${{ runner.os }}-go-${{ hashFiles('go.sum') }}"
-        restore-keys: |
-          ${{ runner.os }}-go-
+        go-version: "${{ inputs.go-version }}"
 
     - name: "Write go.list file"
       shell: "bash"
