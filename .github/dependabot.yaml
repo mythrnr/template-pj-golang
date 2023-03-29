@@ -5,7 +5,23 @@
 version: 2
 
 updates:
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    reviewers:
+      - "mythrnr"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "mythrnr"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "gomod"
     directory: "/"
+    reviewers:
+      - "mythrnr"
     schedule:
       interval: "weekly"
