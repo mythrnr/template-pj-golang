@@ -5,19 +5,33 @@
 version: 2
 
 updates:
-  - &docker
-    package-ecosystem: "docker"
+  - package-ecosystem: "docker"
     directory: "/docker/app/Dockerfile"
     reviewers:
       - "mythrnr"
     schedule:
       interval: "weekly"
-  - <<: *docker
-    directory: "/docker/nginx/certs.Dockerfile"
-  - <<: *docker
+
+  - package-ecosystem: "docker"
     directory: "/docker/nginx/Dockerfile"
-  - <<: *docker
+    reviewers:
+      - "mythrnr"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "docker"
+    directory: "/docker/nginx/certs.Dockerfile"
+    reviewers:
+      - "mythrnr"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "docker"
     directory: "/docker/nginx/local.Dockerfile"
+    reviewers:
+      - "mythrnr"
+    schedule:
+      interval: "weekly"
 
   - package-ecosystem: "github-actions"
     directory: "/"
