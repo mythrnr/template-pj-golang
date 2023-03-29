@@ -12,8 +12,9 @@ type Server struct {
 	c *config.Config
 }
 
+//nolint:gosec
 func (s *Server) Start() {
-	http.ListenAndServe(fmt.Sprintf(":%d", s.c.App.ListenPort), s.setup())
+	_ = http.ListenAndServe(fmt.Sprintf(":%d", s.c.App.ListenPort), s.setup())
 }
 
 func (s *Server) setup() *httprouter.Router {
@@ -22,7 +23,7 @@ func (s *Server) setup() *httprouter.Router {
 	router.GET("/ping", func(
 		rw http.ResponseWriter, r *http.Request, p httprouter.Params,
 	) {
-		rw.Write([]byte("ok"))
+		_, _ = rw.Write([]byte("ok"))
 		rw.WriteHeader(http.StatusOK)
 	})
 

@@ -90,6 +90,7 @@ func (c *Config) Dump() string {
 }
 
 func (c *Config) bind() error {
+	//nolint:revive
 	if err := errors.NewMultipleError(
 		c.bindApp(),
 		c.bindCache(),
@@ -104,6 +105,8 @@ func (c *Config) bind() error {
 }
 
 func ts(v string) string { return strings.TrimSpace(v) }
+
+//nolint:unused
 func cs(v string) []string {
 	vs := strings.Split(v, ",")
 	ds := make([]string, 0, len(vs))
@@ -114,6 +117,8 @@ func cs(v string) []string {
 
 	return ds
 }
+
+//nolint:unused
 func filter(vs []string) []string {
 	ds := make([]string, 0, len(vs))
 
