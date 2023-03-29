@@ -6,7 +6,11 @@ version: 2
 
 updates:
   - package-ecosystem: "docker"
-    directory: "/docker"
+    directory:
+      - "/docker/app/Dockerfile"
+      - "/docker/nginx/certs.Dockerfile"
+      - "/docker/nginx/Dockerfile"
+      - "/docker/nginx/local.Dockerfile"
     reviewers:
       - "mythrnr"
     schedule:
