@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/go-sql-driver/mysql v1.7.0
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mythrnr/errors v0.8.2
