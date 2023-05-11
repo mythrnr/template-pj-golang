@@ -18,7 +18,7 @@ build:
 	GO_PKGDIR=$(go_pkgdir) \
 	docker compose \
 		-f compose.build.yaml \
-		build --parallel --pull $(compose_opts)
+		build --parallel --progress plain --pull $(compose_opts)
 
 .PHONY: build-container
 build-container:
@@ -29,7 +29,7 @@ build-container:
 		-f compose.yaml \
 		-f compose.$(overridefile).yaml \
 		--profile server --profile godoc \
-		build --parallel --pull $(compose_opts)
+		build --parallel --progress plain --pull $(compose_opts)
 
 	docker build \
 		-f ./docker/nginx/certs.Dockerfile \
@@ -107,7 +107,7 @@ godoc:
 	cd docker \
 	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose --profile godoc up
+	docker compose --profile godoc up --timestamps
 
 .PHONY: integrate
 integrate:
@@ -222,8 +222,8 @@ serve:
 	docker compose \
 		-f compose.yaml \
 		-f compose.$(overridefile).yaml \
-		--profile server \
-		up $(compose_opts)
+		--profile server\
+		up --timestamps $(compose_opts)
 
 .PHONY: spell-check
 spell-check:
