@@ -10,7 +10,7 @@ require (
 	github.com/mythrnr/errors v0.8.2
 	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.25.3
-	golang.org/x/text v0.9.0
+	golang.org/x/text v0.10.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
