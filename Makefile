@@ -83,8 +83,7 @@ fmt:
 .PHONY: godoc
 godoc:
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose $(compose_global_opts) --profile godoc \
-		up --timestamps
+	docker compose $(compose_global_opts) --profile godoc up
 
 .PHONY: hadolint
 hadolint:
@@ -183,7 +182,7 @@ release:
 serve:
 	GO_PKGDIR=$(go_pkgdir) \
 	docker compose $(compose_global_opts) --profile server \
-		up --timestamps $(compose_opts)
+		up $(compose_opts)
 
 .PHONY: spell-check
 spell-check:
