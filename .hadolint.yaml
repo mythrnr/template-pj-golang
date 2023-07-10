@@ -1,0 +1,12 @@
+ignored:
+  # https://github.com/hadolint/hadolint/wiki/DL3002
+  - "DL3002"
+  # https://github.com/hadolint/hadolint/wiki/DL3003
+  - "DL3003"
+  # https://github.com/hadolint/hadolint/wiki/DL3006
+  - "DL3006"
+  # https://github.com/hadolint/hadolint/wiki/DL3008
+  - "DL3008"
+  # https://github.com/hadolint/hadolint/wiki/DL3018
+  - "DL3018"
+no-color: true

@@ -2,15 +2,15 @@
 services:
   database:
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
 
   redis:
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
 
   web:
     ports:
-      - "443:443"
+      - "127.0.0.1:443:443"
     volumes:
       - type: "bind"
         source: "../docs/openapi"

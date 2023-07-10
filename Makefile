@@ -3,7 +3,6 @@ MAKEFLAGS += --silent
 endif
 
 command = help
-compose_opts =
 go_pkgdir ?= $(shell go env GOPATH)/pkg
 overridefile ?= override
 pkg ?= .
@@ -11,27 +10,23 @@ pwd = $(shell pwd)
 release ?= testing
 version ?= edge
 
+compose_global_opts = -f docker/compose.yaml -f docker/compose.$(overridefile).yaml --progress plain
+compose_opts =
+
 .PHONY: build
 build:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.build.yaml \
-		build --parallel --progress plain --pull $(compose_opts)
+	docker compose -f docker/compose.build.yaml --progress plain \
+		build --pull $(compose_opts)
 
 .PHONY: build-container
 build-container:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		--profile server --profile godoc \
-		build --parallel --progress plain --pull $(compose_opts)
+	docker compose $(compose_global_opts) --profile server --profile godoc \
+		build --pull $(compose_opts)
 
 	docker build \
+		--progress plain \
 		-f ./docker/nginx/certs.Dockerfile \
 		-t mythrnr/template-pj-golang:mkcert-development .
 
@@ -49,23 +44,15 @@ clean:
 
 .PHONY: cli
 cli:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
+	docker compose $(compose_global_opts) --profile server \
 		run --rm app go run main.go -- $(command)
 
 .PHONY: cover
 cover:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		run --rm app sh scripts/cover.sh
+	docker compose $(compose_global_opts) --profile server \
+		run --rm app bash scripts/cover.sh
 
 .PHONY: deploy
 deploy:
@@ -83,41 +70,35 @@ deploy:
 
 .PHONY: down
 down:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		--profile server --profile godoc \
+	docker compose $(compose_global_opts) --profile server --profile godoc \
 		down
 
 .PHONY: fmt
 fmt:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
+	docker compose $(compose_global_opts) --profile server \
 		run --no-deps app go fmt ./...
 
 .PHONY: godoc
 godoc:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose --profile godoc up --timestamps
+	docker compose $(compose_global_opts) --profile godoc \
+		up --timestamps
+
+.PHONY: hadolint
+hadolint:
+	docker pull hadolint/hadolint:latest > /dev/null \
+	&& find ./docker -name Dockerfile | xargs -I{} sh -c "\
+		echo 'Run hadolint: {}' \
+		&& docker run --rm -i -v $(shell pwd):/workdir -w /workdir \
+			hadolint/hadolint < {}"
 
 .PHONY: integrate
 integrate:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		run --rm app sh scripts/integrate.sh $(pkg)
+	docker compose $(compose_global_opts) --profile server \
+		run --rm app bash scripts/integrate.sh $(pkg)
 
 .PHONY: lint
 lint:
@@ -140,9 +121,9 @@ migrate:
 		exit 1; \
 	fi
 
-	cd docker \
-	&& docker compose run --rm --no-deps app \
-		migrate create -ext sql -dir migration/sql $(name) \
+	docker compose $(compose_global_opts) --profile server \
+		run --rm --no-deps app \
+			migrate create -ext sql -dir migration/sql $(name) \
 
 test_opt =
 
@@ -152,22 +133,14 @@ endif
 
 .PHONY: migrate-exec
 migrate-exec:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
+	docker compose $(compose_global_opts) --profile server \
 		run --rm app go run main.go -- migrate up $(test_opt)
 
 .PHONY: migrate-rollback
 migrate-rollback:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
+	docker compose $(compose_global_opts) --profile server \
 		run --rm app go run main.go -- migrate down $(test_opt) 1
 
 .PHONY: mock
@@ -188,22 +161,14 @@ nancy:
 
 .PHONY: pull
 pull:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		--profile server --profile godoc \
+	docker compose $(compose_global_opts) --profile server --profile godoc \
 		pull
 
 .PHONY: push
 push:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.build.yaml push
+	docker compose -f docker/compose.build.yaml push
 
 .PHONY: release
 release:
@@ -216,49 +181,31 @@ release:
 
 .PHONY: serve
 serve:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		--profile server\
+	docker compose $(compose_global_opts) --profile server \
 		up --timestamps $(compose_opts)
 
 .PHONY: spell-check
 spell-check:
 	docker pull ghcr.io/streetsidesoftware/cspell:latest > /dev/null \
-	&& docker run --rm \
-		-v $(pwd):/workdir \
+	&& docker run --rm -v $(pwd):/workdir \
 		ghcr.io/streetsidesoftware/cspell:latest \
 			--config .vscode/cspell.json "**"
 
 .PHONY: test
 test:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		run --rm app sh scripts/test.sh $(pkg)
+	docker compose $(compose_global_opts) --profile server \
+		run --rm app bash scripts/test.sh $(pkg)
 
 .PHONY: test-json
 test-json:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
-		run --rm app sh scripts/test.sh . -json
+	docker compose $(compose_global_opts) --profile server \
+		run --rm app bash scripts/test.sh . -json
 
 .PHONY: tidy
 tidy:
-	cd docker \
-	&& \
 	GO_PKGDIR=$(go_pkgdir) \
-	docker compose \
-		-f compose.yaml \
-		-f compose.$(overridefile).yaml \
+	docker compose $(compose_global_opts) --profile server \
 		run --rm --no-deps app go mod tidy

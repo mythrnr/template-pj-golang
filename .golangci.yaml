@@ -54,6 +54,7 @@ linters-settings:
 
 linters:
   disable:
+    - "depguard"
     - "exhaustive"
     - "exhaustivestruct"
     - "exhaustruct"

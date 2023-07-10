@@ -143,7 +143,7 @@ services:
     depends_on:
       - "godoc"
     ports:
-      - "80:80"
+      - "127.0.0.1:80:80"
     volumes:
       - type: "bind"
         source: "./nginx/godoc.conf"

@@ -19,9 +19,9 @@ RUN <<EOF
     apk update
     apk upgrade
     apk add --no-cache git
-    git clone ${GITHUB_REPO_BASE}/template-pj-golang.git
+    git clone "${GITHUB_REPO_BASE}/template-pj-golang.git"
     cd template-pj-golang
-    git checkout `git rev-parse ${APP_VERSION}`
+    git checkout "$(git rev-parse ${APP_VERSION})"
 EOF
 
 FROM nginx:alpine

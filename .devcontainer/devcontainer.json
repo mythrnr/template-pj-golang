@@ -17,12 +17,8 @@
         },
         "editor.formatOnSave": true,
         "editor.insertSpaces": false,
-        "go.autocompleteUnimportedPackages": true,
         "go.formatTool": "goimports",
         "go.inferGopath": false,
-        "go.languageServerExperimentalFeatures": {
-          "diagnostics": true
-        },
         "go.lintOnSave": "workspace",
         "go.lintTool": "golangci-lint",
         "go.lintFlags": [
