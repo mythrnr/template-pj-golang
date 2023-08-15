@@ -95,7 +95,7 @@ jobs:
 
       - uses: "actions/setup-go@v4"
         with:
-          go-version: "1.20"
+          go-version: "1.21"
 
       - name: "Login Dockerhub"
         uses: "docker/login-action@v2"
@@ -139,7 +139,7 @@ jobs:
             1> result.json
 
       - name: "Annotate tests"
-        if: "always()"
+        if: "${{ always() }}"
         uses: "guyarb/golang-test-annotations@v0.6.0"
         with:
           test-results: "result.json"
@@ -184,7 +184,7 @@ jobs:
             }
 
   notify-failure:
-    if: "failure()"
+    if: "${{ failure() }}"
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
     timeout-minutes: 5

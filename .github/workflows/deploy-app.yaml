@@ -72,7 +72,7 @@ jobs:
             }
 
   notify-failure:
-    if: "failure()"
+    if: "${{ failure() }}"
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
     timeout-minutes: 5

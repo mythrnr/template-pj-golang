@@ -29,13 +29,13 @@ jobs:
       - name: "Set Version"
         run: echo "APP_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
-      - if: "contains(github.ref, '-dev')"
+      - if: "${{ contains(github.ref, '-dev') }}"
         name: "Set Release env variables for Testing"
         run: |
           echo "RELEASE_BRANCH=develop" >> $GITHUB_ENV
           echo "RELEASE_ENV=testing" >> $GITHUB_ENV
 
-      - if: "!contains(github.ref, '-dev')"
+      - if: "${{ !contains(github.ref, '-dev') }}"
         name: "Set Release env variables for Production"
         run: |
           echo "RELEASE_BRANCH=master" >> $GITHUB_ENV
@@ -161,7 +161,7 @@ jobs:
             }
 
   notify-failure:
-    if: "failure()"
+    if: "${{ failure() }}"
     name: "Slack Notification on failure"
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
