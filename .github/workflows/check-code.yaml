@@ -37,7 +37,7 @@ jobs:
           app_id: "${{ secrets.CI_APP_ID }}"
           private_key: "${{ secrets.CI_APP_PRIVATE_KEY }}"
 
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
         with:
           token: "${{ steps.issue-token.outputs.token }}"
 
@@ -55,7 +55,7 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
 
       - name: "Scan Vulnerabilities"
         uses: "./.github/actions/scan-vulnerabilities"
@@ -68,7 +68,7 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
 
       - name: "Run spell check"
         run: "make spell-check"
@@ -78,7 +78,7 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 10
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
 
       - name: "Issue access token"
         id: "issue-token"
