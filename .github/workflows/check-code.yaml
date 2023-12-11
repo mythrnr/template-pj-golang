@@ -93,7 +93,7 @@ jobs:
           location: "${{ github.workspace }}/.netrc"
           secret-token: "${{ steps.issue-token.outputs.token }}"
 
-      - uses: "actions/setup-go@v4"
+      - uses: "actions/setup-go@v5"
         with:
           go-version: "1.21"
 
