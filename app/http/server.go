@@ -21,7 +21,7 @@ func (s *Server) setup() *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/ping", func(
-		rw http.ResponseWriter, r *http.Request, p httprouter.Params,
+		rw http.ResponseWriter, _ *http.Request, _ httprouter.Params,
 	) {
 		_, _ = rw.Write([]byte("ok"))
 		rw.WriteHeader(http.StatusOK)

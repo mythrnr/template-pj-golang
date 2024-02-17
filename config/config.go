@@ -6,7 +6,7 @@ import (
 
 	"github.com/mythrnr/errors"
 	pkgerrs "github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 //go:embed config.yaml
@@ -72,7 +72,7 @@ func Load() (*Config, error) {
 		return nil, pkgerrs.WithStack(err)
 	}
 
-	if err := yaml.UnmarshalStrict(b, c); err != nil {
+	if err := yaml.Unmarshal(b, c); err != nil {
 		return nil, pkgerrs.WithStack(err)
 	}
 
@@ -90,7 +90,6 @@ func (c *Config) Dump() string {
 }
 
 func (c *Config) bind() error {
-	//nolint:revive
 	if err := errors.NewMultipleError(
 		c.bindApp(),
 		c.bindCache(),

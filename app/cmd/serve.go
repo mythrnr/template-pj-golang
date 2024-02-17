@@ -12,7 +12,7 @@ import (
 
 var ServeCommand = &cli.Command{
 	Name: "serve",
-	Action: func(ctx *cli.Context) error {
+	Action: func(_ *cli.Context) error {
 		c, err := config.Load()
 		if err != nil {
 			log.Printf("%+v", err)

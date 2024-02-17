@@ -10,7 +10,7 @@ import (
 
 var ConfigCommand = &cli.Command{
 	Name: "config",
-	Action: func(ctx *cli.Context) error {
+	Action: func(_ *cli.Context) error {
 		c, err := config.Load()
 		if err != nil {
 			log.Printf("%+v", err)
