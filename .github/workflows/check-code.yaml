@@ -46,7 +46,7 @@ jobs:
         with:
           secret-token: "${{ steps.issue-token.outputs.token }}"
 
-      - uses: "golangci/golangci-lint-action@v4"
+      - uses: "golangci/golangci-lint-action@v5"
         with:
           version: "latest"
 
