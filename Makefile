@@ -102,7 +102,7 @@ integrate:
 .PHONY: lint
 lint:
 	docker pull golangci/golangci-lint:latest > /dev/null \
-	&& mkdir -p .cache/golangci-lint \
+	&& mkdir -p .cache/golangci-lint .cache/go-build \
 	&& docker run --rm \
 		-v $(go_pkgdir):/go/pkg \
 		-v $(pwd):/app \
@@ -189,7 +189,7 @@ spell-check:
 	docker pull ghcr.io/streetsidesoftware/cspell:latest > /dev/null \
 	&& docker run --rm -v $(pwd):/workdir \
 		ghcr.io/streetsidesoftware/cspell:latest \
-			--config .vscode/cspell.json "**"
+			--config /workdir/.vscode/cspell.json "**"
 
 .PHONY: test
 test:
