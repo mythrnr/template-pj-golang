@@ -44,22 +44,14 @@ linters-settings:
 linters:
   disable:
     - "depguard"
-    - "exhaustive"
     - "exhaustruct"
-    - "gci"
     - "gochecknoglobals"
-    - "gofumpt"
-    - "ireturn"
-    - "nilnil"
-    - "tagliatelle"
     - "varnamelen"
     - "wrapcheck"
+    - "tagliatelle"
     # ---- deprecated ---- #
     - "execinquery"
     - "gomnd"
-    - "rowserrcheck"
-    - "sqlclosecheck"
-    - "wastedassign"
     # -------------------- #
   enable-all: true
   fast: false
@@ -74,25 +66,3 @@ issues:
     - "docs"
     - "mocks"
     - "scripts"
-  exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: "_test.go"
-      linters:
-        - "bodyclose"
-        - "dupl"
-        - "errcheck"
-        - "funlen"
-        - "gocognit"
-        - "goconst"
-        - "goerr113"
-        - "gosec"
-        - "lll"
-        - "maintidx"
-        - "tenv"
-    - path: "config/.*_test\\.go"
-      linters:
-        - "paralleltest"
-        - "tparallel"
-    - path: "integrate/.*_test\\.go"
-      linters:
-        - "paralleltest"
