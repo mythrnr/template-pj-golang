@@ -7,7 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/julienschmidt/httprouter v1.3.0
-	github.com/mythrnr/errors v0.10.0
+	github.com/mythrnr/errors v0.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.27.2
 	golang.org/x/text v0.16.0
