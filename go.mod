@@ -9,7 +9,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mythrnr/errors v0.10.1
 	github.com/pkg/errors v0.9.1
-	github.com/urfave/cli/v2 v2.27.3
+	github.com/urfave/cli/v2 v2.27.4
 	golang.org/x/text v0.17.0
 	gopkg.in/yaml.v3 v3.0.1
 )
