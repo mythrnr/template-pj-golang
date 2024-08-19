@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.22 as base
+FROM golang:1.23 as base
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
