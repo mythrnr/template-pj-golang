@@ -38,6 +38,7 @@
     "eoux",
     "execinquery",
     "exhaustruct",
+    "exportloopref",
     "extfile",
     "fatih",
     "funlen",

@@ -171,12 +171,12 @@ push:
 
 .PHONY: release
 release:
-	if [ "$(tag)" = "" ]; then \
-		echo "tag name is required."; \
+	if [ "$(version)" = "" ]; then \
+		echo "version is required."; \
 		exit 1; \
 	fi \
-	&& git tag $(tag) \
-	&& git push origin $(tag)
+	&& git tag $(version) \
+	&& git push origin $(version)
 
 .PHONY: serve
 serve:

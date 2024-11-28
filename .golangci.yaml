@@ -1,6 +1,6 @@
 # see: https://golangci-lint.run/usage/configuration/
 run:
-  go: "1.22"
+  go: "1.23"
   timeout: "1m"
 
 output:
@@ -50,8 +50,7 @@ linters:
     - "wrapcheck"
     - "tagliatelle"
     # ---- deprecated ---- #
-    - "execinquery"
-    - "gomnd"
+    - "exportloopref"
     # -------------------- #
   enable-all: true
   fast: false

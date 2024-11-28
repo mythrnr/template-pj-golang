@@ -14,6 +14,7 @@ func (c *Config) bindLang() error {
 			c.Lang.Fallback,
 			validation.Required,
 			validation.By(func(v interface{}) error {
+				//nolint:errcheck
 				_, err := language.Parse(v.(string))
 
 				return err
