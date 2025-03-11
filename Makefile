@@ -76,9 +76,7 @@ down:
 
 .PHONY: fmt
 fmt:
-	GO_PKGDIR=$(go_pkgdir) \
-	docker compose $(compose_global_opts) --profile server \
-		run --no-deps app go fmt ./...
+	go fmt ./...
 
 .PHONY: godoc
 godoc:
@@ -205,6 +203,4 @@ test-json:
 
 .PHONY: tidy
 tidy:
-	GO_PKGDIR=$(go_pkgdir) \
-	docker compose $(compose_global_opts) --profile server \
-		run --rm --no-deps app go mod tidy
+	go mod tidy

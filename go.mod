@@ -1,16 +1,16 @@
 module github.com/mythrnr/template-pj-golang
 
-go 1.23
+go 1.24
 
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/go-sql-driver/mysql v1.8.1
-	github.com/golang-migrate/migrate/v4 v4.18.1
+	github.com/go-sql-driver/mysql v1.9.0
+	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mythrnr/errors v0.10.2
 	github.com/pkg/errors v0.9.1
-	github.com/urfave/cli/v2 v2.27.5
-	golang.org/x/text v0.21.0
+	github.com/urfave/cli/v2 v2.27.6
+	golang.org/x/text v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

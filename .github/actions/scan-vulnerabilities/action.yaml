@@ -4,7 +4,7 @@ description: "Scan Vulnerabilities using nancy."
 inputs:
   go-version:
     description: "Version to specify actions/setup-go"
-    default: "1.23"
+    default: "1.24"
     required: false
   app-id:
     description: "ID of Github Apps that has permission to access other private repositories."
