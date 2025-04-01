@@ -1,67 +1,89 @@
 # see: https://golangci-lint.run/usage/configuration/
+version: "2"
+
 run:
   go: "1.24"
-  timeout: "1m"
-
-output:
-  sort-results: true
-
-linters-settings:
-  cyclop:
-    max-complexity: 20
-  dupl:
-    threshold: 100
-  errcheck:
-    check-type-assertions: true
-  gocognit:
-    min-complexity: 20
-  gocyclo:
-    min-complexity: 20
-  godox:
-    keywords:
-      - "TODO"
-      - "FIXME"
-  lll:
-    line-length: 100
-    tab-width: 4
-  makezero:
-    always: true
-  misspell:
-    locale: "US"
-    ignore-words:
-      - "some_word"
-  mnd:
-    ignored-functions:
-      - "strconv.FormatInt"
-      - "strconv.ParseFloat"
-      - "strconv.ParseInt"
-      - "strconv.ParseUint"
-  nestif:
-    min-complexity: 4
-  testpackage:
-    skip-regexp: "_inner_test.go"
 
 linters:
+  default: "all"
   disable:
     - "depguard"
     - "exhaustruct"
     - "gochecknoglobals"
+    - "tagliatelle"
     - "varnamelen"
     - "wrapcheck"
-    - "tagliatelle"
-    # ---- deprecated ---- #
-    - "tenv"
-    # -------------------- #
-  enable-all: true
-  fast: false
+  settings:
+    cyclop:
+      max-complexity: 20
+    dupl:
+      threshold: 100
+    errcheck:
+      check-type-assertions: true
+    gocognit:
+      min-complexity: 20
+    gocyclo:
+      min-complexity: 20
+    godox:
+      keywords:
+        - "TODO"
+        - "FIXME"
+    lll:
+      line-length: 100
+      tab-width: 4
+    makezero:
+      always: true
+    misspell:
+      locale: "US"
+      ignore-rules:
+        - "some_word"
+    mnd:
+      ignored-functions:
+        - "strconv.FormatInt"
+        - "strconv.ParseFloat"
+        - "strconv.ParseInt"
+        - "strconv.ParseUint"
+    nestif:
+      min-complexity: 4
+    testpackage:
+      skip-regexp: "_inner_test.go"
+  exclusions:
+    generated: "lax"
+    presets:
+      - "comments"
+      - "common-false-positives"
+      - "legacy"
+      - "std-error-handling"
+    paths:
+      - ".devcontainer"
+      - ".github"
+      - ".vscode"
+      - "bin"
+      - "docker"
+      - "docs"
+      - "mocks"
+      - "scripts"
+      - "third_party$"
+      - "builtin$"
+      - "examples$"
 
-issues:
-  exclude-dirs:
-    - ".devcontainer"
-    - ".github"
-    - ".vscode"
-    - "bin"
-    - "docker"
-    - "docs"
-    - "mocks"
-    - "scripts"
+formatters:
+  enable:
+    - "gci"
+    - "gofmt"
+    - "gofumpt"
+    - "goimports"
+  exclusions:
+    generated: "lax"
+    paths:
+      - ".devcontainer"
+      - ".github"
+      - ".vscode"
+      - "bin"
+      - "docker"
+      - "docs"
+      - "mocks"
+      - "scripts"
+      - "third_party$"
+      - "builtin$"
+      - "examples$"
