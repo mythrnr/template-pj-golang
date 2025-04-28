@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-sql-driver/mysql v1.9.2
-	github.com/golang-migrate/migrate/v4 v4.18.2
+	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mythrnr/errors v0.10.4
 	github.com/pkg/errors v0.9.1
