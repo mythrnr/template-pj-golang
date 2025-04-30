@@ -39,6 +39,7 @@
     "extfile",
     "fatih",
     "forcetypeassert",
+    "funcorder",
     "funlen",
     "fvxz",
     "genmock",
