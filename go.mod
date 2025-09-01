@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/golang-migrate/migrate/v4 v4.18.3
+	github.com/golang-migrate/migrate/v4 v4.19.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mythrnr/errors v0.12.0
 	github.com/pkg/errors v0.9.1
@@ -22,5 +22,4 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
 )
