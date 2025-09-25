@@ -38,6 +38,9 @@ certs:
 		--env=COMMON_NAME=localhost \
 		mythrnr/template-pj-golang:mkcert-development
 
+.PHONY: ci-suite
+ci-suite: spell-check fmt hadolint lint mock vulnerability-check test
+
 .PHONY: clean
 clean:
 	rm -rf .cache/* .tmp/*
@@ -144,17 +147,10 @@ migrate-rollback:
 mock:
 	docker pull vektra/mockery:latest > /dev/null
 	docker run --rm \
-		--entrypoint sh \
 		-v $(go_pkgdir):/go/pkg \
 		-v $(pwd):$(pwd) \
 		-w $(pwd) \
-		vektra/mockery:latest scripts/genmock.sh $(pkg)
-
-.PHONY: nancy
-nancy:
-	docker pull sonatypecommunity/nancy:latest > /dev/null \
-	&& go list -buildvcs=false -deps -json ./... \
-	| docker run --rm -i sonatypecommunity/nancy:latest sleuth
+		vektra/mockery:latest
 
 .PHONY: pull
 pull:
@@ -204,3 +200,8 @@ test-json:
 .PHONY: tidy
 tidy:
 	go mod tidy
+
+.PHONY: vulnerability-check
+vulnerability-check:
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+	govulncheck -show=version ./...

@@ -9,4 +9,6 @@ ignored:
   - "DL3008"
   # https://github.com/hadolint/hadolint/wiki/DL3018
   - "DL3018"
+  # https://github.com/hadolint/hadolint/wiki/DL3018
+  - "DL3062"
 no-color: true

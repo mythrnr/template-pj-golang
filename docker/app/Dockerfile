@@ -76,7 +76,7 @@ RUN <<EOF
     # Install Migrate
     #
     GOMIGRATE_LATEST_TAG_URL="https://api.github.com/repos/golang-migrate/migrate/releases/latest"
-    if [ "x" != "x${HTTPS_PROXY}" ]; then
+    if [ "" != "${HTTPS_PROXY}" ]; then
         GOMIGRATE_TAG="$(curl -x ${HTTPS_PROXY} -sL ${GOMIGRATE_LATEST_TAG_URL} | jq -r '.tag_name')";
     else
         GOMIGRATE_TAG="$(curl -sL ${GOMIGRATE_LATEST_TAG_URL} | jq -r '.tag_name')";
@@ -89,7 +89,7 @@ RUN <<EOF
         GOMIGRATE_FILE="migrate.linux-arm64";
     fi
 
-    if [ "x" != "x${HTTPS_PROXY}" ]; then
+    if [ "" != "${HTTPS_PROXY}" ]; then
         curl -x "${HTTPS_PROXY}" -o "${GOMIGRATE_FILE}.tar.gz" -L "${GOMIGRATE_URL}${GOMIGRATE_FILE}.tar.gz";
     else
         curl -o "${GOMIGRATE_FILE}.tar.gz" -L "${GOMIGRATE_URL}${GOMIGRATE_FILE}.tar.gz";
@@ -103,7 +103,7 @@ RUN <<EOF
     # Install Mockery
     #
     MOCKERY_LATEST_TAG_URL="https://api.github.com/repos/vektra/mockery/releases/latest"
-    if [ "x" != "x${HTTPS_PROXY}" ]; then
+    if [ "" != "${HTTPS_PROXY}" ]; then
         MOCKERY_TAG="$(curl -x ${HTTPS_PROXY} -sL ${MOCKERY_LATEST_TAG_URL} | jq -r '.tag_name')";
     else
         MOCKERY_TAG="$(curl -sL ${MOCKERY_LATEST_TAG_URL} | jq -r '.tag_name')";
@@ -119,7 +119,7 @@ RUN <<EOF
         MOCKERY_BIN_FILE="mockery_${MOCKERY_VERSION}_Linux_arm64";
     fi
 
-    if [ "x" != "x${HTTPS_PROXY}" ]; then
+    if [ "" != "${HTTPS_PROXY}" ]; then
         curl -x "${HTTPS_PROXY}" -o "${MOCKERY_BIN_FILE}.tar.gz" -L "${MOCKERY_BIN_URL}";
     else
         curl -o "${MOCKERY_BIN_FILE}.tar.gz" -L "${MOCKERY_BIN_URL}";
@@ -133,7 +133,7 @@ RUN <<EOF
     # Install golangci-lint
     #
     GOLANGCI_LINT_INSTALL_SHELL="https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh"
-    if [ "x" != "x${HTTPS_PROXY}" ]; then
+    if [ "" != "${HTTPS_PROXY}" ]; then
         curl -x "${HTTPS_PROXY}" -L "${GOLANGCI_LINT_INSTALL_SHELL}" \
         | sh -s -- -b "$(go env GOPATH)/bin";
     else

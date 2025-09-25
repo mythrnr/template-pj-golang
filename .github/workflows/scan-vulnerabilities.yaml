@@ -3,6 +3,12 @@ name: "Scan Vulnerabilities"
 on:
   # schedule:
   #   - cron: "0 0 * * *"
+  workflow_call:
+    secrets:
+        app-id:
+          required: true
+        app-private-key:
+          required: true
   workflow_dispatch:
 
 permissions:
@@ -14,10 +20,25 @@ jobs:
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     steps:
-      - uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8" # v5.0.0
-
-      - name: "Scan Vulnerabilities"
-        uses: "./.github/actions/scan-vulnerabilities"
+      - name: "Issue access token"
+        id: "issue-token"
+        uses: "getsentry/action-github-app-token@d4b5da6c5e37703f8c3b3e43abb5705b46e159cc" # v3.0.0
         with:
-          app-id: "${{ secrets.CI_APP_ID }}"
-          private-key: "${{ secrets.CI_APP_PRIVATE_KEY }}"
+          app_id: "${{ secrets.app-id }}"
+          private_key: "${{ secrets.app-private-key }}"
+
+      - uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8" # v5.0.0
+        with:
+          token: "${{ steps.issue-token.outputs.token }}"
+
+      - name: "Prepare git access"
+        uses: "./.github/actions/prepare-git-access"
+        with:
+          secret-token: "${{ steps.issue-token.outputs.token }}"
+
+      - uses: "actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00" # v6.0.0
+        with:
+          go-version: "1.25"
+
+      - name: "Run vulnerability check"
+        run: "make vulnerability-check"

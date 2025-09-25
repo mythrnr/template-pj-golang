@@ -1,0 +1,10 @@
+# see: https://vektra.github.io/mockery/v3.5/configuration/
+all: true
+dir: "{{.InterfaceDir}}/mocks"
+filename: "mocks.go"
+pkgname: "mocks"
+recursive: true
+structname: "{{.InterfaceName}}"
+template: "testify"
+packages:
+  github.com/mythrnr/template-pj-golang:
