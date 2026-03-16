@@ -1,6 +1,6 @@
 module github.com/mythrnr/template-pj-golang
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -10,7 +10,7 @@ require (
 	github.com/mythrnr/errors v0.13.1
 	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/text v0.34.0
+	golang.org/x/text v0.35.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
